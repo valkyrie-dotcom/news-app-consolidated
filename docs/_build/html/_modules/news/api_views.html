@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>news.api_views &mdash; News Application 00.00.01 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d7bb8d4d"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            News Application
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">news</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">News Application</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">news.api_views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for news.api_views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Views for RESTful API (token authentication and role-based</span>
+<span class="sd">access)."""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">api_view</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Article</span><span class="p">,</span> <span class="n">Newsletter</span><span class="p">,</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArticleSerializer</span><span class="p">,</span> <span class="n">NewsletterSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">approve_article</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="can_manage">
+<a class="viewcode-back" href="../../news.html#news.api_views.can_manage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">can_manage</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Check whether a user may update or delete an article.</span>
+
+<span class="sd">    :param User user: The logged-in user</span>
+<span class="sd">    :param Article article: The article being changed</span>
+<span class="sd">    :returns: ``True`` for editors, or for the journalist who wrote it</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="n">User</span><span class="o">.</span><span class="n">EDITOR</span> <span class="ow">or</span> <span class="n">article</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span></div>
+
+
+
+<div class="viewcode-block" id="may_use_publisher">
+<a class="viewcode-back" href="../../news.html#news.api_views.may_use_publisher">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">may_use_publisher</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">publisher</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Check whether a journalist may publish for a publisher.</span>
+
+<span class="sd">    :param User user: The logged-in user</span>
+<span class="sd">    :param publisher: The chosen publisher, or ``None`` for an independent</span>
+<span class="sd">        article</span>
+<span class="sd">    :type publisher: Publisher or None</span>
+<span class="sd">    :returns: ``True`` if the article is independent, the user is not a</span>
+<span class="sd">        journalist, or the journalist belongs to the publisher</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">publisher</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">!=</span> <span class="n">User</span><span class="o">.</span><span class="n">JOURNALIST</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">publisher</span><span class="o">.</span><span class="n">journalists</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="error">
+<a class="viewcode-back" href="../../news.html#news.api_views.error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return an error response in one consistent format.</span>
+
+<span class="sd">    :param str message: The error message for the client</span>
+<span class="sd">    :param int code: The HTTP status code</span>
+<span class="sd">    :returns: A response with the body ``{"error": message}``</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">"error"</span><span class="p">:</span> <span class="n">message</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">code</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="article_list">
+<a class="viewcode-back" href="../../news.html#news.api_views.article_list">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">article_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List approved articles, or create a new article.</span>
+
+<span class="sd">    GET returns all approved articles. POST creates an article for the</span>
+<span class="sd">    logged-in journalist. New articles wait for an editor's approval.</span>
+
+<span class="sd">    :param request: The API request (token authenticated)</span>
+<span class="sd">    :returns: 200 with the articles, 201 with the new article, 400 if the</span>
+<span class="sd">        data is invalid, or 403 if the user is not allowed</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"GET"</span><span class="p">:</span>
+        <span class="n">articles</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">approved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">!=</span> <span class="n">User</span><span class="o">.</span><span class="n">JOURNALIST</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">has_perm</span><span class="p">(</span><span class="s2">"news.add_article"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"Only journalists can create articles."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">may_use_publisher</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publisher"</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"You are not a journalist for this publisher."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+
+    <span class="c1"># New articles always wait for an editor's approval</span>
+    <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="subscribed_articles">
+<a class="viewcode-back" href="../../news.html#news.api_views.subscribed_articles">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"GET"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">subscribed_articles</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List approved articles from the reader's subscriptions.</span>
+
+<span class="sd">    :param request: The API request from a reader</span>
+<span class="sd">    :returns: 200 with articles from the reader's subscribed publishers and</span>
+<span class="sd">        journalists, or 403 if the user is not a reader</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">!=</span> <span class="n">User</span><span class="o">.</span><span class="n">READER</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"Only readers have subscriptions."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+
+    <span class="n">articles</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">approved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">Q</span><span class="p">(</span><span class="n">publisher__in</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">subscribed_publishers</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+        <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">author__in</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">subscribed_journalists</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="article_detail">
+<a class="viewcode-back" href="../../news.html#news.api_views.article_detail">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"PUT"</span><span class="p">,</span> <span class="s2">"DELETE"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">article_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Retrieve, update or delete one article.</span>
+
+<span class="sd">    PUT and DELETE are allowed for editors and for the journalist who wrote</span>
+<span class="sd">    the article. Only editors can approve with ``"approved": true``.</span>
+
+<span class="sd">    :param request: The API request (token authenticated)</span>
+<span class="sd">    :param int pk: The article's ID</span>
+<span class="sd">    :returns: 200 with the article, 204 after deleting, 400 if the data is</span>
+<span class="sd">        invalid, 403 if the user is not allowed, or 404 if not found</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="n">article</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Article</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"GET"</span><span class="p">:</span>
+        <span class="c1"># Unapproved articles are hidden from everyone but editors and</span>
+        <span class="c1"># their author</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">can_manage</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"Article not found."</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">article</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"DELETE"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">has_perm</span><span class="p">(</span><span class="s2">"news.delete_article"</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="ow">not</span> <span class="n">can_manage</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"You cannot delete this article."</span><span class="p">,</span>
+                         <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+        <span class="n">article</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_204_NO_CONTENT</span><span class="p">)</span>
+
+    <span class="c1"># PUT</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">has_perm</span><span class="p">(</span><span class="s2">"news.change_article"</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="n">can_manage</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"You cannot update this article."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+
+    <span class="n">approve</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">"approved"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">!=</span> <span class="n">User</span><span class="o">.</span><span class="n">EDITOR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"Only editors can approve articles."</span><span class="p">,</span>
+                         <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">approve</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span><span class="o">.</span><span class="n">to_internal_value</span><span class="p">(</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"approved must be true or false."</span><span class="p">,</span>
+                         <span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">may_use_publisher</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publisher"</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"You are not a journalist for this publisher."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+    <span class="n">article</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">approve</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span><span class="p">:</span>
+        <span class="c1"># Approves, emails subscribers and posts to /api/approved/</span>
+        <span class="n">approve_article</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">approve</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span><span class="p">:</span>
+        <span class="n">article</span><span class="o">.</span><span class="n">approved</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">article</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">ArticleSerializer</span><span class="p">(</span><span class="n">article</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="approved_log">
+<a class="viewcode-back" href="../../news.html#news.api_views.approved_log">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"POST"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">approved_log</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Log an approved article. Called after an editor approves one.</span>
+
+<span class="sd">    :param request: The API request, with the article as JSON</span>
+<span class="sd">    :returns: 201 once logged, 400 without a title, or 403 if the user is</span>
+<span class="sd">        not an editor</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">!=</span> <span class="n">User</span><span class="o">.</span><span class="n">EDITOR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"Only editors can log approved articles."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">"The article title is required."</span><span class="p">,</span>
+                     <span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Approved article logged: </span><span class="si">%s</span><span class="s2"> (id </span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
+                <span class="n">title</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">"logged"</span><span class="p">:</span> <span class="n">title</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="newsletter_list">
+<a class="viewcode-back" href="../../news.html#news.api_views.newsletter_list">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"GET"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">newsletter_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List all newsletters with their approved articles.</span>
+
+<span class="sd">    :param request: The API request (token authenticated)</span>
+<span class="sd">    :returns: 200 with the newsletters</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="n">newsletters</span> <span class="o">=</span> <span class="n">Newsletter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">NewsletterSerializer</span><span class="p">(</span><span class="n">newsletters</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="newsletter_detail">
+<a class="viewcode-back" href="../../news.html#news.api_views.newsletter_detail">[docs]</a>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">"GET"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">newsletter_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Retrieve one newsletter with its approved articles.</span>
+
+<span class="sd">    :param request: The API request (token authenticated)</span>
+<span class="sd">    :param int pk: The newsletter's ID</span>
+<span class="sd">    :returns: 200 with the newsletter, or 404 if not found</span>
+<span class="sd">    :rtype: rest_framework.response.Response</span>
+<span class="sd">    """</span>
+    <span class="n">newsletter</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Newsletter</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">NewsletterSerializer</span><span class="p">(</span><span class="n">newsletter</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Leandri Swanepoel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -16,25 +16,55 @@ logger = logging.getLogger(__name__)
 
 
 def can_manage(user, article):
-    """Editors can manage any article, journalists only their own."""
+    """Check whether a user may update or delete an article.
+
+    :param User user: The logged-in user
+    :param Article article: The article being changed
+    :returns: ``True`` for editors, or for the journalist who wrote it
+    :rtype: bool
+    """
     return user.role == User.EDITOR or article.author == user
 
 
 def may_use_publisher(user, publisher):
-    """Journalists can only write for publishers they belong to."""
+    """Check whether a journalist may publish for a publisher.
+
+    :param User user: The logged-in user
+    :param publisher: The chosen publisher, or ``None`` for an independent
+        article
+    :type publisher: Publisher or None
+    :returns: ``True`` if the article is independent, the user is not a
+        journalist, or the journalist belongs to the publisher
+    :rtype: bool
+    """
     if publisher is None or user.role != User.JOURNALIST:
         return True
     return publisher.journalists.filter(pk=user.pk).exists()
 
 
 def error(message, code):
-    """Return an error response in one consistent format."""
+    """Return an error response in one consistent format.
+
+    :param str message: The error message for the client
+    :param int code: The HTTP status code
+    :returns: A response with the body ``{"error": message}``
+    :rtype: rest_framework.response.Response
+    """
     return Response({"error": message}, status=code)
 
 
 @api_view(["GET", "POST"])
 def article_list(request):
-    """GET: all approved articles. POST: create an article (journalists)."""
+    """List approved articles, or create a new article.
+
+    GET returns all approved articles. POST creates an article for the
+    logged-in journalist. New articles wait for an editor's approval.
+
+    :param request: The API request (token authenticated)
+    :returns: 200 with the articles, 201 with the new article, 400 if the
+        data is invalid, or 403 if the user is not allowed
+    :rtype: rest_framework.response.Response
+    """
     if request.method == "GET":
         articles = Article.objects.filter(approved=True)
         return Response(ArticleSerializer(articles, many=True).data)
@@ -58,8 +88,13 @@ def article_list(request):
 
 @api_view(["GET"])
 def subscribed_articles(request):
-    """Approved articles from the reader's subscribed publishers and
-    journalists."""
+    """List approved articles from the reader's subscriptions.
+
+    :param request: The API request from a reader
+    :returns: 200 with articles from the reader's subscribed publishers and
+        journalists, or 403 if the user is not a reader
+    :rtype: rest_framework.response.Response
+    """
     user = request.user
     if user.role != User.READER:
         return error("Only readers have subscriptions.",
@@ -74,8 +109,17 @@ def subscribed_articles(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 def article_detail(request, pk):
-    """GET one article. PUT updates it, DELETE removes it (editors, or the
-    journalist who wrote it). Only editors can approve with PUT."""
+    """Retrieve, update or delete one article.
+
+    PUT and DELETE are allowed for editors and for the journalist who wrote
+    the article. Only editors can approve with ``"approved": true``.
+
+    :param request: The API request (token authenticated)
+    :param int pk: The article's ID
+    :returns: 200 with the article, 204 after deleting, 400 if the data is
+        invalid, 403 if the user is not allowed, or 404 if not found
+    :rtype: rest_framework.response.Response
+    """
     article = get_object_or_404(Article, pk=pk)
     user = request.user
 
@@ -132,7 +176,13 @@ def article_detail(request, pk):
 
 @api_view(["POST"])
 def approved_log(request):
-    """Log an approved article. Called after an editor approves one."""
+    """Log an approved article. Called after an editor approves one.
+
+    :param request: The API request, with the article as JSON
+    :returns: 201 once logged, 400 without a title, or 403 if the user is
+        not an editor
+    :rtype: rest_framework.response.Response
+    """
     if request.user.role != User.EDITOR:
         return error("Only editors can log approved articles.",
                      status.HTTP_403_FORBIDDEN)
@@ -147,13 +197,24 @@ def approved_log(request):
 
 @api_view(["GET"])
 def newsletter_list(request):
-    """All newsletters."""
+    """List all newsletters with their approved articles.
+
+    :param request: The API request (token authenticated)
+    :returns: 200 with the newsletters
+    :rtype: rest_framework.response.Response
+    """
     newsletters = Newsletter.objects.all()
     return Response(NewsletterSerializer(newsletters, many=True).data)
 
 
 @api_view(["GET"])
 def newsletter_detail(request, pk):
-    """One newsletter."""
+    """Retrieve one newsletter with its approved articles.
+
+    :param request: The API request (token authenticated)
+    :param int pk: The newsletter's ID
+    :returns: 200 with the newsletter, or 404 if not found
+    :rtype: rest_framework.response.Response
+    """
     newsletter = get_object_or_404(Newsletter, pk=pk)
     return Response(NewsletterSerializer(newsletter).data)
