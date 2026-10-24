@@ -1,0 +1,143 @@
+"""Models for users with roles, publishers, articles and newsletters."""
+from django.contrib.auth.models import AbstractUser, Group
+from django.db import models
+
+
+class User(AbstractUser):
+    """A user of the news application with a role.
+
+    Readers subscribe to publishers and journalists. Journalists write
+    articles and newsletters. Editors review and approve articles.
+    """
+
+    READER = "reader"
+    EDITOR = "editor"
+    JOURNALIST = "journalist"
+    ROLE_CHOICES = [
+        (READER, "Reader"),
+        (EDITOR, "Editor"),
+        (JOURNALIST, "Journalist"),
+    ]
+
+    # The group each role is added to
+    ROLE_GROUPS = {
+        READER: "Readers",
+        EDITOR: "Editors",
+        JOURNALIST: "Journalists",
+    }
+
+    role = models.CharField(
+        max_length=20, choices=ROLE_CHOICES, default=READER
+    )
+
+    # Reader fields: the publishers and journalists they subscribe to
+    subscribed_publishers = models.ManyToManyField(
+        "Publisher", blank=True, related_name="subscribers"
+    )
+    subscribed_journalists = models.ManyToManyField(
+        "self", blank=True, symmetrical=False,
+        related_name="reader_subscribers",
+    )
+
+    def save(self, *args, **kwargs):
+        """Save the user, then apply their role's group and fields."""
+        super().save(*args, **kwargs)
+        self.apply_role()
+
+    def apply_role(self):
+        """Put the user in their role's group and clear the fields that
+        do not belong to their role."""
+        group = Group.objects.filter(name=self.ROLE_GROUPS[self.role]).first()
+        if group is not None:
+            self.groups.set([group])
+        # Only readers have subscriptions, so other roles have none
+        if self.role != self.READER:
+            self.subscribed_publishers.clear()
+            self.subscribed_journalists.clear()
+
+    # Journalist fields. The articles and newsletters are reverse
+    # relations of Article.author and Newsletter.author.
+    @property
+    def independent_articles(self):
+        """Articles a journalist published without a publisher."""
+        if self.role != self.JOURNALIST:
+            return None
+        return self.articles.filter(publisher__isnull=True)
+
+    @property
+    def independent_newsletters(self):
+        """Newsletters a journalist created."""
+        if self.role != self.JOURNALIST:
+            return None
+        return self.newsletters.all()
+
+    def __str__(self):
+        """Return the username."""
+        return self.username
+
+
+class Publisher(models.Model):
+    """A publication that can have several editors and journalists."""
+
+    name = models.CharField(max_length=100, unique=True)
+    editors = models.ManyToManyField(
+        User, blank=True, related_name="editor_of",
+        limit_choices_to={"role": User.EDITOR},
+    )
+    journalists = models.ManyToManyField(
+        User, blank=True, related_name="journalist_of",
+        limit_choices_to={"role": User.JOURNALIST},
+    )
+
+    def __str__(self):
+        """Return the publisher's name."""
+        return self.name
+
+
+class Article(models.Model):
+    """A news article written by a journalist."""
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="articles"
+    )
+    publisher = models.ForeignKey(
+        Publisher, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="articles",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    # True once an editor has approved the article
+    approved = models.BooleanField(default=False)
+
+    class Meta:
+        """Show the newest articles first."""
+
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        """Return the article's title."""
+        return self.title
+
+
+class Newsletter(models.Model):
+    """A collection of articles created by a journalist."""
+
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="newsletters"
+    )
+    articles = models.ManyToManyField(
+        Article, blank=True, related_name="newsletters"
+    )
+
+    class Meta:
+        """Show newest newsletters first."""
+
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        """Return newsletter's title."""
+        return self.title

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }}{% endblock title %}
+{% block content %}
+    <h1>{{ article.title }}</h1>
+    <p class="meta">
+        By {{ article.author.username }}
+        {% if article.publisher %}for {{ article.publisher.name }}{% else %}(independent){% endif %}
+        on {{ article.created_at|date:"j F Y" }}
+        {% if not article.approved %}<span class="pending">(awaiting approval)</span>{% endif %}
+    </p>
+    <p>{{ article.content|linebreaksbr }}</p>
+
+    {% if user.role == "editor" or article.author == user %}
+        {% if perms.news.change_article %}<a class="btn" href="{% url 'news:article_edit' article.pk %}">✏️ Edit</a>{% endif %}
+        {% if perms.news.delete_article %}<a class="btn btn-danger" href="{% url 'news:article_delete' article.pk %}">🗑️ Delete</a>{% endif %}
+    {% endif %}
+    <a class="btn" href="{% url 'news:article_list' %}">Back to articles</a>
+{% endblock content %}

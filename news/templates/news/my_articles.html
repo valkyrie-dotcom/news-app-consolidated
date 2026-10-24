@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}My articles{% endblock title %}
+{% block content %}
+    <h1>My articles</h1>
+    <a class="btn" href="{% url 'news:article_create' %}">✏️ Write an article</a>
+    {% for article in articles %}
+        <div class="card">
+            <h2><a href="{% url 'news:article_detail' article.pk %}">{{ article.title }}</a></h2>
+            <p class="meta">
+                {% if article.publisher %}{{ article.publisher.name }}{% else %}Independent{% endif %}
+                | {% if article.approved %}Approved{% else %}<span class="pending">Awaiting approval</span>{% endif %}
+            </p>
+        </div>
+    {% empty %}
+        <p>You have not written any articles yet.</p>
+    {% endfor %}
+{% endblock content %}

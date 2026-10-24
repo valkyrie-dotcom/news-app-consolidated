@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Not allowed{% endblock title %}
+{% block content %}
+    <h1>Not allowed</h1>
+    <a class="btn" href="{% url 'news:article_list' %}">Back to articles</a>
+{% endblock content %}

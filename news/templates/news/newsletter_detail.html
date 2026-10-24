@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ newsletter.title }}{% endblock title %}
+{% block content %}
+    <h1>{{ newsletter.title }}</h1>
+    <p class="meta">By {{ newsletter.author.username }} on {{ newsletter.created_at|date:"j F Y" }}</p>
+    <p>{{ newsletter.description }}</p>
+
+    <h2>Articles</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td><a href="{% url 'news:article_detail' article.pk %}">{{ article.title }}</a></td>
+                    <td>{{ article.author.username }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="2">This newsletter has no articles yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if user.role == "editor" or newsletter.author == user %}
+        {% if perms.news.change_newsletter %}<a class="btn" href="{% url 'news:newsletter_edit' newsletter.pk %}">✏️ Edit</a>{% endif %}
+        {% if perms.news.delete_newsletter %}<a class="btn btn-danger" href="{% url 'news:newsletter_delete' newsletter.pk %}">🗑️ Delete</a>{% endif %}
+    {% endif %}
+    <a class="btn" href="{% url 'news:newsletter_list' %}">Back to newsletters</a>
+{% endblock content %}

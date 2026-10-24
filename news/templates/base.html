@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}News{% endblock title %} | News App</title>
+    <link rel="stylesheet" href="{% static 'news/styles.css' %}">
+</head>
+<body>
+    <!-- Navigation bar: the links shown depend on the user's role -->
+    <header class="navbar">
+        <a class="brand" href="{% url 'news:article_list' %}">News App</a>
+        <nav>
+            {% if user.is_authenticated %}
+                <a href="{% url 'news:article_list' %}">Articles</a>
+                <a href="{% url 'news:newsletter_list' %}">Newsletters</a>
+                {% if user.role == "reader" %}
+                    <a href="{% url 'news:subscriptions' %}">My subscriptions</a>
+                {% elif user.role == "journalist" %}
+                    <a href="{% url 'news:my_articles' %}">My articles</a>
+                    <a href="{% url 'news:article_create' %}">Write an article</a>
+                    <a href="{% url 'news:newsletter_create' %}">Create a newsletter</a>
+                {% elif user.role == "editor" %}
+                    <a href="{% url 'news:review_articles' %}">Review articles</a>
+                {% endif %}
+                <!-- Logging out uses POST, like the eCommerce app -->
+                <form class="inline-form" method="POST" action="{% url 'news:logout' %}">
+                    {% csrf_token %}
+                    <button class="btn-small" type="submit">Logout ({{ user.username }}, {{ user.get_role_display }})</button>
+                </form>
+            {% else %}
+                <a href="{% url 'news:login' %}">Login</a>
+                <a href="{% url 'news:register' %}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Success and error messages -->
+        {% for message in messages %}
+            <p class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">{{ message }}</p>
+        {% endfor %}
+        {% if error %}
+            <p class="alert alert-error">{{ error }}</p>
+        {% endif %}
+
+        {% block content %}
+        {% endblock content %}
+    </main>
+</body>
+</html>
