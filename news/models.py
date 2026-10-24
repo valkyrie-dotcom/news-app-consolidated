@@ -40,13 +40,20 @@ class User(AbstractUser):
     )
 
     def save(self, *args, **kwargs):
-        """Save the user, then apply their role's group and fields."""
+        """Save the user, then apply their role's group and fields.
+
+        :param args: Positional arguments passed on to Django's ``save()``
+        :param kwargs: Keyword arguments passed on to Django's ``save()``
+        """
         super().save(*args, **kwargs)
         self.apply_role()
 
     def apply_role(self):
-        """Put the user in their role's group and clear the fields that
-        do not belong to their role."""
+        """Put the user in their role's group.
+
+        Users who are not readers have their subscriptions cleared, because
+        only readers have subscriptions.
+        """
         group = Group.objects.filter(name=self.ROLE_GROUPS[self.role]).first()
         if group is not None:
             self.groups.set([group])
@@ -59,14 +66,24 @@ class User(AbstractUser):
     # relations of Article.author and Newsletter.author.
     @property
     def independent_articles(self):
-        """Articles a journalist published without a publisher."""
+        """Articles a journalist published without a publisher.
+
+        :returns: The journalist's independent articles, or ``None`` for
+            users who are not journalists
+        :rtype: QuerySet or None
+        """
         if self.role != self.JOURNALIST:
             return None
         return self.articles.filter(publisher__isnull=True)
 
     @property
     def independent_newsletters(self):
-        """Newsletters a journalist created."""
+        """Newsletters a journalist created.
+
+        :returns: The journalist's newsletters, or ``None`` for users who
+            are not journalists
+        :rtype: QuerySet or None
+        """
         if self.role != self.JOURNALIST:
             return None
         return self.newsletters.all()
