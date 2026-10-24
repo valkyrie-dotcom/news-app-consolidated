@@ -5,6 +5,15 @@ articles for approval and posting by editors. Readers subscribe to
 publishers and journalists to get new articles by email. A RESTful API with
 token authentication serves the articles to third-party clients.
 
+You can run the project in two ways:
+
+* **With a virtual environment (venv)** and a MariaDB database, described
+  under [Installation](#installation).
+* **With Docker**, which needs no database setup, described under
+  [Running with Docker](#running-with-docker).
+
+The code documentation, generated with Sphinx, is in the `docs` folder.
+
 GitHub repository: https://github.com/valkyrie-dotcom/news-app-consolidated
 
 ## Features
@@ -126,6 +135,12 @@ Open `.env` in a text editor and set `DB_PASSWORD` to your MariaDB root
 password. Leave the email lines commented out to have emails printed in the
 terminal instead of sent.
 
+`.env` holds your passwords, so it is listed in `.gitignore` and is never
+committed. Each person who runs the project creates their own `.env` from
+`.env.example`. To send real emails, fill in the email lines with your own
+SMTP details (for Gmail, create an app password in your Google account
+under **Security > App passwords**).
+
 ### 8. Create the tables
 
 ```bash
@@ -160,6 +175,42 @@ to.
 
 If no email details are set in `.env`, emails (approved articles sent to
 subscribers) are printed in the terminal.
+
+## Running with Docker
+
+Install Docker Desktop (https://www.docker.com/products/docker-desktop), or
+use Play with Docker (https://labs.play-with-docker.com/) in your browser.
+Inside the container the app uses a SQLite database, so you do not need
+MariaDB or a `.env` file.
+
+### 1. Clone the repository and go into the project folder
+
+```bash
+git clone https://github.com/valkyrie-dotcom/news-app-consolidated.git
+cd news-app-consolidated
+```
+
+### 2. Build the image
+
+```bash
+docker build -t news-app .
+```
+
+### 3. Run the container
+
+```bash
+docker run -d -p 8000:8000 --name news-app news-app
+```
+
+The container creates the tables and the role groups, then starts the
+server. Open http://localhost:8000/ in your browser. On Play with Docker,
+click the **8000** link that appears at the top of the page.
+
+### 4. Create an admin user
+
+```bash
+docker exec -it news-app python manage.py createsuperuser
+```
 
 ## Running the tests
 
@@ -203,7 +254,7 @@ independent article):
 ## Project structure
 
 ```
-news-app/
+news-app-consolidated/
 ├── news_site/          # Project settings and URLs
 ├── news/               # The news app
 │   ├── models.py       # User, Publisher, Article, Newsletter
@@ -215,7 +266,9 @@ news-app/
 │   ├── tests.py        # Automated unit tests
 │   ├── static/         # Stylesheet
 │   └── templates/
+├── docs/               # Sphinx documentation (built HTML in docs/_build/html)
 ├── Planning/           # Planning document and diagrams
+├── Dockerfile          # Builds the Docker image
 ├── manage.py
 └── requirements.txt
 ```
