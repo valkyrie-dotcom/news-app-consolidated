@@ -31,7 +31,12 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Hosts allowed to serve the site. Locally Django allows localhost. In
+# Docker, set ALLOWED_HOSTS (comma-separated, or * for any) in the
+# environment so the site can be reached from outside the container.
+ALLOWED_HOSTS = [
+    host for host in os.environ.get("ALLOWED_HOSTS", "").split(",") if host
+]
 
 
 # Application definition
