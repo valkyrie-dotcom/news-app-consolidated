@@ -7,16 +7,20 @@ class User(AbstractUser):
     """A user of the news application with a role.
 
     Readers subscribe to publishers and journalists. Journalists write
-    articles and newsletters. Editors review and approve articles.
+    articles and newsletters. Editors review and approve their publishers'
+    articles. Publishers own a publication and choose its editors and
+    journalists.
     """
 
     READER = "reader"
     EDITOR = "editor"
     JOURNALIST = "journalist"
+    PUBLISHER = "publisher"
     ROLE_CHOICES = [
         (READER, "Reader"),
         (EDITOR, "Editor"),
         (JOURNALIST, "Journalist"),
+        (PUBLISHER, "Publisher"),
     ]
 
     # The group each role is added to
@@ -24,6 +28,7 @@ class User(AbstractUser):
         READER: "Readers",
         EDITOR: "Editors",
         JOURNALIST: "Journalists",
+        PUBLISHER: "Publishers",
     }
 
     role = models.CharField(
@@ -94,9 +99,19 @@ class User(AbstractUser):
 
 
 class Publisher(models.Model):
-    """A publication that can have several editors and journalists."""
+    """A publication that can have several editors and journalists.
+
+    A user with the Publisher role owns the publication and chooses its
+    editors and journalists.
+    """
 
     name = models.CharField(max_length=100, unique=True)
+    # The publisher user who owns this publication.
+    owner = models.OneToOneField(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="publication",
+        limit_choices_to={"role": User.PUBLISHER},
+    )
     editors = models.ManyToManyField(
         User, blank=True, related_name="editor_of",
         limit_choices_to={"role": User.EDITOR},

@@ -14,6 +14,11 @@ GROUP_PERMISSIONS = {
         "add_newsletter", "view_newsletter", "change_newsletter",
         "delete_newsletter",
     ],
+    # Publishers read like readers and choose their publication's staff
+    "Publishers": [
+        "view_article", "view_newsletter", "view_publisher",
+        "change_publisher",
+    ],
 }
 
 
