@@ -38,6 +38,8 @@ class NewsTestCase(TestCase):
 
         self.publisher = Publisher.objects.create(name="Daily Planet")
         self.publisher.journalists.add(self.journalist)
+        # Editors only see and approve their own publishers' articles
+        self.publisher.editors.add(self.editor)
 
         # Approved articles: one from the publisher, one from another
         # journalist, and one article still waiting for approval
@@ -177,10 +179,10 @@ class DeleteArticleTests(NewsTestCase):
     def test_editor_can_delete(self):
         """An editor can delete an article."""
         self.login_as(self.editor)
-        url = reverse("api_article_detail", args=[self.other_article.pk])
+        url = reverse("api_article_detail", args=[self.publisher_article.pk])
         self.assertEqual(self.client.delete(url).status_code, 204)
         self.assertFalse(
-            Article.objects.filter(pk=self.other_article.pk).exists()
+            Article.objects.filter(pk=self.publisher_article.pk).exists()
         )
 
     def test_reader_cannot_delete(self):
@@ -222,3 +224,71 @@ class NewsletterTests(NewsTestCase):
         })
         self.assertEqual(response.status_code, 403)
         self.assertFalse(Newsletter.objects.filter(title="Nope").exists())
+
+
+class EditorScopeTests(NewsTestCase):
+    """Editors only see articles of publishers they belong to."""
+
+    def test_editor_only_sees_own_publishers_articles(self):
+        """Editors do not see independent or other publishers' articles."""
+        self.login_as(self.editor)
+        response = self.client.get(reverse("api_articles"))
+        titles = [article["title"] for article in response.json()]
+        self.assertEqual(titles, ["Publisher news"])
+
+        other_editor = User.objects.create_user(
+            "other_editor", "e2@example.com", PASSWORD, role=User.EDITOR
+        )
+        self.login_as(other_editor)
+        url = reverse("api_article_detail", args=[self.publisher_article.pk])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+
+@mock.patch("news.utils.requests.post")
+class IndependentArticleTests(NewsTestCase):
+    """Journalists publish their own independent articles."""
+
+    def test_independent_article_is_published_on_save(self, mock_post):
+        """An article with no publisher goes live and reaches subscribers."""
+        self.reader.subscribed_journalists.add(self.journalist)
+        self.login_as(self.journalist)
+        response = self.client.post(reverse("api_articles"), {
+            "title": "My own story", "content": "Written independently.",
+        }, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(response.json()["approved"])
+        self.assertEqual(mail.outbox[0].bcc, ["reader@example.com"])
+        mock_post.assert_called_once()
+
+
+class PublisherTests(NewsTestCase):
+    """Publishers register with a publication and choose its staff."""
+
+    def test_publisher_registers_with_publication(self):
+        """Registering as a publisher creates their publication."""
+        response = self.client.post(reverse("news:register"), {
+            "username": "owner", "email": "owner@example.com",
+            "password": PASSWORD, "password_conf": PASSWORD,
+            "role": "publisher", "publication_name": "Morning Star",
+        })
+        self.assertRedirects(response, reverse("news:my_publication"))
+        owner = User.objects.get(username="owner")
+        self.assertEqual(owner.publication.name, "Morning Star")
+        self.assertTrue(owner.groups.filter(name="Publishers").exists())
+
+    def test_publisher_assigns_editors_and_journalists(self):
+        """A publisher adds an editor and a journalist to their
+        publication."""
+        owner = User.objects.create_user(
+            "owner", "owner@example.com", PASSWORD, role=User.PUBLISHER
+        )
+        publication = Publisher.objects.create(
+            name="Morning Star", owner=owner
+        )
+        self.client.login(username="owner", password=PASSWORD)
+        self.client.post(reverse("news:my_publication"), {
+            "editors": [self.editor.pk],
+            "journalists": [self.other_journalist.pk],
+        })
+        self.assertIn(self.editor, publication.editors.all())
+        self.assertIn(self.other_journalist, publication.journalists.all())
