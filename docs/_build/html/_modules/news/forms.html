@@ -69,11 +69,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for news.forms</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Forms for articles, newsletters and reader subscriptions.</span>
+<span></span><span class="sd">"""Forms for articles, newsletters, reader subscriptions and publications.</span>
 <span class="sd">Largely reused from eCommerce task."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Article</span><span class="p">,</span> <span class="n">Newsletter</span><span class="p">,</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Article</span><span class="p">,</span> <span class="n">Newsletter</span><span class="p">,</span> <span class="n">Publisher</span><span class="p">,</span> <span class="n">User</span>
 
 
 <div class="viewcode-block" id="ArticleForm">
@@ -90,9 +90,17 @@
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"title"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">,</span> <span class="s2">"publisher"</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">journalist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Limit the publishers to those the journalist belongs to."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">journalist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_publisher</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Limit the publishers to those the journalist belongs to.</span>
+
+<span class="sd">        Editors edit with allow_publisher=False, because they cannot move</span>
+<span class="sd">        an article to another publisher or make it independent.</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_publisher</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">"publisher"</span><span class="p">]</span>
+            <span class="k">return</span>
         <span class="c1"># A journalist can only publish for publishers they belong to</span>
         <span class="n">publisher_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">"publisher"</span><span class="p">]</span>
         <span class="n">publisher_field</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># optional for independents</span>
@@ -154,6 +162,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">"subscribed_journalists"</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">role</span><span class="o">=</span><span class="n">User</span><span class="o">.</span><span class="n">JOURNALIST</span>
         <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PublicationForm">
+<a class="viewcode-back" href="../../news.html#news.forms.PublicationForm">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PublicationForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Form for a publisher to choose their editors and journalists."""</span>
+
+<div class="viewcode-block" id="PublicationForm.Meta">
+<a class="viewcode-back" href="../../news.html#news.forms.PublicationForm.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Use the Publisher model's editors and journalists fields."""</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Publisher</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"editors"</span><span class="p">,</span> <span class="s2">"journalists"</span><span class="p">]</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"editors"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">CheckboxSelectMultiple</span><span class="p">,</span>
+            <span class="s2">"journalists"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">CheckboxSelectMultiple</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
 
 </pre></div>
 

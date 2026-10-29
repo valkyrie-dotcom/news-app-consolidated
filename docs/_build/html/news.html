@@ -46,6 +46,18 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">news</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">news package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-news.access">news.access module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.articles_to_review"><code class="docutils literal notranslate"><span class="pre">articles_to_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.can_manage_article"><code class="docutils literal notranslate"><span class="pre">can_manage_article()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.can_manage_newsletter"><code class="docutils literal notranslate"><span class="pre">can_manage_newsletter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.can_view_article"><code class="docutils literal notranslate"><span class="pre">can_view_article()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.can_view_newsletter"><code class="docutils literal notranslate"><span class="pre">can_view_newsletter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.editor_without_publisher"><code class="docutils literal notranslate"><span class="pre">editor_without_publisher()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.is_editor"><code class="docutils literal notranslate"><span class="pre">is_editor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.listed_articles"><code class="docutils literal notranslate"><span class="pre">listed_articles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.access.listed_newsletters"><code class="docutils literal notranslate"><span class="pre">listed_newsletters()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-news.admin">news.admin module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#news.admin.NewsUserAdmin"><code class="docutils literal notranslate"><span class="pre">NewsUserAdmin</span></code></a></li>
 </ul>
@@ -55,7 +67,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.approved_log"><code class="docutils literal notranslate"><span class="pre">approved_log()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.article_detail"><code class="docutils literal notranslate"><span class="pre">article_detail()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.article_list"><code class="docutils literal notranslate"><span class="pre">article_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#news.api_views.can_manage"><code class="docutils literal notranslate"><span class="pre">can_manage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.error"><code class="docutils literal notranslate"><span class="pre">error()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.may_use_publisher"><code class="docutils literal notranslate"><span class="pre">may_use_publisher()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.api_views.newsletter_detail"><code class="docutils literal notranslate"><span class="pre">newsletter_detail()</span></code></a></li>
@@ -71,6 +82,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-news.forms">news.forms module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#news.forms.ArticleForm"><code class="docutils literal notranslate"><span class="pre">ArticleForm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.forms.NewsletterForm"><code class="docutils literal notranslate"><span class="pre">NewsletterForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.forms.PublicationForm"><code class="docutils literal notranslate"><span class="pre">PublicationForm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.forms.SubscriptionForm"><code class="docutils literal notranslate"><span class="pre">SubscriptionForm</span></code></a></li>
 </ul>
 </li>
@@ -93,8 +105,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.AuthenticationTests"><code class="docutils literal notranslate"><span class="pre">AuthenticationTests</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.CreateArticleTests"><code class="docutils literal notranslate"><span class="pre">CreateArticleTests</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.DeleteArticleTests"><code class="docutils literal notranslate"><span class="pre">DeleteArticleTests</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.tests.EditorScopeTests"><code class="docutils literal notranslate"><span class="pre">EditorScopeTests</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.tests.IndependentArticleTests"><code class="docutils literal notranslate"><span class="pre">IndependentArticleTests</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.NewsTestCase"><code class="docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.NewsletterTests"><code class="docutils literal notranslate"><span class="pre">NewsletterTests</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.tests.PublisherTests"><code class="docutils literal notranslate"><span class="pre">PublisherTests</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.tests.SubscribedArticleTests"><code class="docutils literal notranslate"><span class="pre">SubscribedArticleTests</span></code></a></li>
 </ul>
 </li>
@@ -105,6 +120,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#news.utils.email_subscribers"><code class="docutils literal notranslate"><span class="pre">email_subscribers()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.utils.get_subscriber_emails"><code class="docutils literal notranslate"><span class="pre">get_subscriber_emails()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.utils.post_to_approved_api"><code class="docutils literal notranslate"><span class="pre">post_to_approved_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.utils.update_article_status"><code class="docutils literal notranslate"><span class="pre">update_article_status()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-news.views">news.views module</a><ul>
@@ -114,11 +130,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#news.views.article_detail"><code class="docutils literal notranslate"><span class="pre">article_detail()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.article_edit"><code class="docutils literal notranslate"><span class="pre">article_edit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.article_list"><code class="docutils literal notranslate"><span class="pre">article_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#news.views.can_manage"><code class="docutils literal notranslate"><span class="pre">can_manage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.forbidden"><code class="docutils literal notranslate"><span class="pre">forbidden()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.login_user"><code class="docutils literal notranslate"><span class="pre">login_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.logout_user"><code class="docutils literal notranslate"><span class="pre">logout_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.my_articles"><code class="docutils literal notranslate"><span class="pre">my_articles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#news.views.my_publication"><code class="docutils literal notranslate"><span class="pre">my_publication()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.newsletter_create"><code class="docutils literal notranslate"><span class="pre">newsletter_create()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.newsletter_delete"><code class="docutils literal notranslate"><span class="pre">newsletter_delete()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#news.views.newsletter_detail"><code class="docutils literal notranslate"><span class="pre">newsletter_detail()</span></code></a></li>
@@ -165,6 +181,72 @@
 <h1>news package<a class="headerlink" href="#news-package" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-news.access">
+<span id="news-access-module"></span><h2>news.access module<a class="headerlink" href="#module-news.access" title="Link to this heading"></a></h2>
+<p>Who can see and manage articles and newsletters.</p>
+<p>Editors only see articles and newsletters of publishers they are
+assigned to. Everyone else sees all approved content, journalists also
+see their own unapproved articles.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.articles_to_review">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">articles_to_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#articles_to_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.articles_to_review" title="Link to this definition"></a></dt>
+<dd><p>Unapproved articles of the editor’s publishers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.can_manage_article">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">can_manage_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">article</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#can_manage_article"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.can_manage_article" title="Link to this definition"></a></dt>
+<dd><p>Editors may manage their publishers’ articles, journalists their
+own.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.can_manage_newsletter">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">can_manage_newsletter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newsletter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#can_manage_newsletter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.can_manage_newsletter" title="Link to this definition"></a></dt>
+<dd><p>Editors may manage the newsletters they can see, journalists their
+own.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.can_view_article">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">can_view_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">article</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#can_view_article"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.can_view_article" title="Link to this definition"></a></dt>
+<dd><p>Editors may open their publishers’ articles. Everyone else may open
+approved articles, and journalists their own.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.can_view_newsletter">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">can_view_newsletter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newsletter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#can_view_newsletter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.can_view_newsletter" title="Link to this definition"></a></dt>
+<dd><p>Return True if the newsletter is one the user may see.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.editor_without_publisher">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">editor_without_publisher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#editor_without_publisher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.editor_without_publisher" title="Link to this definition"></a></dt>
+<dd><p>Return True for an editor who has not been added to a publisher.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.is_editor">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">is_editor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#is_editor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.is_editor" title="Link to this definition"></a></dt>
+<dd><p>Return True if the user has the Editor role.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.listed_articles">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">listed_articles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#listed_articles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.listed_articles" title="Link to this definition"></a></dt>
+<dd><p>Approved articles for the user’s article list (editors only get
+their publishers’ articles).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="news.access.listed_newsletters">
+<span class="sig-prename descclassname"><span class="pre">news.access.</span></span><span class="sig-name descname"><span class="pre">listed_newsletters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/access.html#listed_newsletters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.access.listed_newsletters" title="Link to this definition"></a></dt>
+<dd><p>Newsletters the user may see. Editors only get newsletters written
+by journalists of their publishers.</p>
+</dd></dl>
+
 </section>
 <section id="module-news.admin">
 <span id="news-admin-module"></span><h2>news.admin module<a class="headerlink" href="#module-news.admin" title="Link to this heading"></a></h2>
@@ -215,14 +297,16 @@ access).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.api_views.approved_log">
 <span class="sig-prename descclassname"><span class="pre">news.api_views.</span></span><span class="sig-name descname"><span class="pre">approved_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/api_views.html#approved_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.api_views.approved_log" title="Link to this definition"></a></dt>
-<dd><p>Log an approved article. Called after an editor approves one.</p>
+<dd><p>Log an approved article.</p>
+<p>Called after an editor approves an article, or a journalist publishes
+an independent one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>request</strong> – The API request, with the article as JSON</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>201 once logged, 400 without a title, or 403 if the user is
-not an editor</p>
+not an editor or journalist</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>rest_framework.response.Response</p>
@@ -234,8 +318,10 @@ not an editor</p>
 <dt class="sig sig-object py" id="news.api_views.article_detail">
 <span class="sig-prename descclassname"><span class="pre">news.api_views.</span></span><span class="sig-name descname"><span class="pre">article_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/api_views.html#article_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.api_views.article_detail" title="Link to this definition"></a></dt>
 <dd><p>Retrieve, update or delete one article.</p>
-<p>PUT and DELETE are allowed for editors and for the journalist who wrote
-the article. Only editors can approve with <code class="docutils literal notranslate"><span class="pre">&quot;approved&quot;:</span> <span class="pre">true</span></code>.</p>
+<p>PUT and DELETE are allowed for the editors of the article’s publisher
+and for the journalist who wrote it. Only editors can approve with
+<code class="docutils literal notranslate"><span class="pre">&quot;approved&quot;:</span> <span class="pre">true</span></code>, and they cannot change the publisher. Editors
+get a 404 for articles outside their publishers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -257,8 +343,10 @@ invalid, 403 if the user is not allowed, or 404 if not found</p>
 <dt class="sig sig-object py" id="news.api_views.article_list">
 <span class="sig-prename descclassname"><span class="pre">news.api_views.</span></span><span class="sig-name descname"><span class="pre">article_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/api_views.html#article_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.api_views.article_list" title="Link to this definition"></a></dt>
 <dd><p>List approved articles, or create a new article.</p>
-<p>GET returns all approved articles. POST creates an article for the
-logged-in journalist. New articles wait for an editor’s approval.</p>
+<p>GET returns approved articles. Editors only get the articles of the
+publishers they belong to. POST creates an article for the logged-in
+journalist. Articles for a publisher wait for one of its editors to
+approve them. Independent articles are published immediately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>request</strong> – The API request (token authenticated)</p>
@@ -269,26 +357,6 @@ data is invalid, or 403 if the user is not allowed</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>rest_framework.response.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="news.api_views.can_manage">
-<span class="sig-prename descclassname"><span class="pre">news.api_views.</span></span><span class="sig-name descname"><span class="pre">can_manage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">article</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/api_views.html#can_manage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.api_views.can_manage" title="Link to this definition"></a></dt>
-<dd><p>Check whether a user may update or delete an article.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>user</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The logged-in user</p></li>
-<li><p><strong>article</strong> (<a class="reference internal" href="#news.models.Article" title="news.models.Article"><em>Article</em></a>) – The article being changed</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> for editors, or for the journalist who wrote it</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,7 +415,8 @@ journalist, or the journalist belongs to the publisher</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>200 with the newsletter, or 404 if not found</p>
+<dd class="field-even"><p>200 with the newsletter, or 404 if not found (or, for
+editors, not written by a journalist of their publishers)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>rest_framework.response.Response</p>
@@ -358,7 +427,9 @@ journalist, or the journalist belongs to the publisher</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.api_views.newsletter_list">
 <span class="sig-prename descclassname"><span class="pre">news.api_views.</span></span><span class="sig-name descname"><span class="pre">newsletter_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/api_views.html#newsletter_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.api_views.newsletter_list" title="Link to this definition"></a></dt>
-<dd><p>List all newsletters with their approved articles.</p>
+<dd><p>List newsletters with their approved articles.</p>
+<p>Editors only get newsletters written by journalists of their
+publishers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>request</strong> – The API request (token authenticated)</p>
@@ -426,11 +497,11 @@ journalists, or 403 if the user is not a reader</p>
 </section>
 <section id="module-news.forms">
 <span id="news-forms-module"></span><h2>news.forms module<a class="headerlink" href="#module-news.forms" title="Link to this heading"></a></h2>
-<p>Forms for articles, newsletters and reader subscriptions.
+<p>Forms for articles, newsletters, reader subscriptions and publications.
 Largely reused from eCommerce task.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="news.forms.ArticleForm">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.forms.</span></span><span class="sig-name descname"><span class="pre">ArticleForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">journalist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/forms.html#ArticleForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.forms.ArticleForm" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.forms.</span></span><span class="sig-name descname"><span class="pre">ArticleForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">journalist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_publisher</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/forms.html#ArticleForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.forms.ArticleForm" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
 <p>Form for writing or editing an article.</p>
 <dl class="py class">
@@ -510,6 +581,52 @@ Largely reused from eCommerce task.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="news.forms.NewsletterForm.media">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#news.forms.NewsletterForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="news.forms.PublicationForm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.forms.</span></span><span class="sig-name descname"><span class="pre">PublicationForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/forms.html#PublicationForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.forms.PublicationForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
+<p>Form for a publisher to choose their editors and journalists.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/news/forms.html#PublicationForm.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.forms.PublicationForm.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Use the Publisher model’s editors and journalists fields.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['editors',</span> <span class="pre">'journalists']</span></span><a class="headerlink" href="#news.forms.PublicationForm.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#news.forms.PublicationForm.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#news.models.Publisher" title="news.models.Publisher"><code class="xref py py-class docutils literal notranslate"><span class="pre">Publisher</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.Meta.widgets">
+<span class="sig-name descname"><span class="pre">widgets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'editors':</span> <span class="pre">&lt;class</span> <span class="pre">'django.forms.widgets.CheckboxSelectMultiple'&gt;,</span> <span class="pre">'journalists':</span> <span class="pre">&lt;class</span> <span class="pre">'django.forms.widgets.CheckboxSelectMultiple'&gt;}</span></span><a class="headerlink" href="#news.forms.PublicationForm.Meta.widgets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'editors':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'journalists':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#news.forms.PublicationForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#news.forms.PublicationForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="news.forms.PublicationForm.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#news.forms.PublicationForm.media" title="Link to this definition"></a></dt>
 <dd><p>Return all media required to render the widgets on this form.</p>
 </dd></dl>
 
@@ -804,6 +921,8 @@ object the first time, the query is executed.</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.models.</span></span><span class="sig-name descname"><span class="pre">Publisher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/models.html#Publisher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.models.Publisher" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
 <p>A publication that can have several editors and journalists.</p>
+<p>A user with the Publisher role owns the publication and chooses its
+editors and journalists.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="news.models.Publisher.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#news.models.Publisher.DoesNotExist" title="Link to this definition"></a></dt>
@@ -889,6 +1008,24 @@ object the first time, the query is executed.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="news.models.Publisher.owner">
+<span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#news.models.Publisher.owner" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a one-to-one
+relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Restaurant</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">place</span> <span class="o">=</span> <span class="n">OneToOneField</span><span class="p">(</span><span class="n">Place</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'restaurant'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Restaurant.place</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardOneToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.models.Publisher.owner_id">
+<span class="sig-name descname"><span class="pre">owner_id</span></span><a class="headerlink" href="#news.models.Publisher.owner_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="news.models.Publisher.subscribers">
 <span class="sig-name descname"><span class="pre">subscribers</span></span><a class="headerlink" href="#news.models.Publisher.subscribers" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related objects manager on the forward and reverse sides of
@@ -912,7 +1049,9 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractUser</span></code></p>
 <p>A user of the news application with a role.</p>
 <p>Readers subscribe to publishers and journalists. Journalists write
-articles and newsletters. Editors review and approve articles.</p>
+articles and newsletters. Editors review and approve their publishers’
+articles. Publishers own a publication and choose its editors and
+journalists.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="news.models.User.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#news.models.User.DoesNotExist" title="Link to this definition"></a></dt>
@@ -942,18 +1081,23 @@ articles and newsletters. Editors review and approve articles.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="news.models.User.PUBLISHER">
+<span class="sig-name descname"><span class="pre">PUBLISHER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'publisher'</span></span><a class="headerlink" href="#news.models.User.PUBLISHER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="news.models.User.READER">
 <span class="sig-name descname"><span class="pre">READER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'reader'</span></span><a class="headerlink" href="#news.models.User.READER" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="news.models.User.ROLE_CHOICES">
-<span class="sig-name descname"><span class="pre">ROLE_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('reader',</span> <span class="pre">'Reader'),</span> <span class="pre">('editor',</span> <span class="pre">'Editor'),</span> <span class="pre">('journalist',</span> <span class="pre">'Journalist')]</span></span><a class="headerlink" href="#news.models.User.ROLE_CHOICES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ROLE_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('reader',</span> <span class="pre">'Reader'),</span> <span class="pre">('editor',</span> <span class="pre">'Editor'),</span> <span class="pre">('journalist',</span> <span class="pre">'Journalist'),</span> <span class="pre">('publisher',</span> <span class="pre">'Publisher')]</span></span><a class="headerlink" href="#news.models.User.ROLE_CHOICES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="news.models.User.ROLE_GROUPS">
-<span class="sig-name descname"><span class="pre">ROLE_GROUPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'editor':</span> <span class="pre">'Editors',</span> <span class="pre">'journalist':</span> <span class="pre">'Journalists',</span> <span class="pre">'reader':</span> <span class="pre">'Readers'}</span></span><a class="headerlink" href="#news.models.User.ROLE_GROUPS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ROLE_GROUPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'editor':</span> <span class="pre">'Editors',</span> <span class="pre">'journalist':</span> <span class="pre">'Journalists',</span> <span class="pre">'publisher':</span> <span class="pre">'Publishers',</span> <span class="pre">'reader':</span> <span class="pre">'Readers'}</span></span><a class="headerlink" href="#news.models.User.ROLE_GROUPS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1183,6 +1327,19 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <span class="sig-name descname"><span class="pre">password</span></span><a class="headerlink" href="#news.models.User.password" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="news.models.User.publication">
+<span class="sig-name descname"><span class="pre">publication</span></span><a class="headerlink" href="#news.models.User.publication" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the reverse side of a one-to-one
+relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Restaurant</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">place</span> <span class="o">=</span> <span class="n">OneToOneField</span><span class="p">(</span><span class="n">Place</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'restaurant'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Place.restaurant</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseOneToOneDescriptor</span></code> instance.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1489,6 +1646,32 @@ Largely adapted from previous lessons and tasks.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="news.tests.EditorScopeTests">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.tests.</span></span><span class="sig-name descname"><span class="pre">EditorScopeTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#EditorScopeTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.EditorScopeTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#news.tests.NewsTestCase" title="news.tests.NewsTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a></p>
+<p>Editors only see articles of publishers they belong to.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="news.tests.EditorScopeTests.test_editor_only_sees_own_publishers_articles">
+<span class="sig-name descname"><span class="pre">test_editor_only_sees_own_publishers_articles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#EditorScopeTests.test_editor_only_sees_own_publishers_articles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.EditorScopeTests.test_editor_only_sees_own_publishers_articles" title="Link to this definition"></a></dt>
+<dd><p>Editors do not see independent or other publishers’ articles.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="news.tests.IndependentArticleTests">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.tests.</span></span><span class="sig-name descname"><span class="pre">IndependentArticleTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#IndependentArticleTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.IndependentArticleTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#news.tests.NewsTestCase" title="news.tests.NewsTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a></p>
+<p>Journalists publish their own independent articles.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="news.tests.IndependentArticleTests.test_independent_article_is_published_on_save">
+<span class="sig-name descname"><span class="pre">test_independent_article_is_published_on_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_post</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#IndependentArticleTests.test_independent_article_is_published_on_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.IndependentArticleTests.test_independent_article_is_published_on_save" title="Link to this definition"></a></dt>
+<dd><p>An article with no publisher goes live and reaches subscribers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="news.tests.NewsTestCase">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.tests.</span></span><span class="sig-name descname"><span class="pre">NewsTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#NewsTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.NewsTestCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
@@ -1534,6 +1717,26 @@ them.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="news.tests.PublisherTests">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.tests.</span></span><span class="sig-name descname"><span class="pre">PublisherTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#PublisherTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.PublisherTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#news.tests.NewsTestCase" title="news.tests.NewsTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a></p>
+<p>Publishers register with a publication and choose its staff.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="news.tests.PublisherTests.test_publisher_assigns_editors_and_journalists">
+<span class="sig-name descname"><span class="pre">test_publisher_assigns_editors_and_journalists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#PublisherTests.test_publisher_assigns_editors_and_journalists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.PublisherTests.test_publisher_assigns_editors_and_journalists" title="Link to this definition"></a></dt>
+<dd><p>A publisher adds an editor and a journalist to their
+publication.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="news.tests.PublisherTests.test_publisher_registers_with_publication">
+<span class="sig-name descname"><span class="pre">test_publisher_registers_with_publication</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#PublisherTests.test_publisher_registers_with_publication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.PublisherTests.test_publisher_registers_with_publication" title="Link to this definition"></a></dt>
+<dd><p>Registering as a publisher creates their publication.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="news.tests.SubscribedArticleTests">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">news.tests.</span></span><span class="sig-name descname"><span class="pre">SubscribedArticleTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/tests.html#SubscribedArticleTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.tests.SubscribedArticleTests" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#news.tests.NewsTestCase" title="news.tests.NewsTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a></p>
@@ -1562,14 +1765,17 @@ them.</p>
 <p>Approval logic (email subscribers and post to /api/approved/).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.utils.approve_article">
-<span class="sig-prename descclassname"><span class="pre">news.utils.</span></span><span class="sig-name descname"><span class="pre">approve_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">article</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/utils.html#approve_article"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.utils.approve_article" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">news.utils.</span></span><span class="sig-name descname"><span class="pre">approve_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">article</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/utils.html#approve_article"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.utils.approve_article" title="Link to this definition"></a></dt>
 <dd><p>Approve an article, email its subscribers and log it to the API.</p>
-<p>Both the editor’s approve page and the API’s PUT call this function.</p>
+<p>Editors approve their publishers’ articles on the approve page or with
+the API’s PUT. Independent articles are approved when the journalist
+saves them (see <a class="reference internal" href="#news.utils.update_article_status" title="news.utils.update_article_status"><code class="xref py py-func docutils literal notranslate"><span class="pre">update_article_status()</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>article</strong> (<a class="reference internal" href="#news.models.Article" title="news.models.Article"><em>Article</em></a>) – The article to approve</p></li>
-<li><p><strong>editor</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The editor approving it</p></li>
+<li><p><strong>user</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The editor approving it, or the journalist
+publishing an independent article</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1642,15 +1848,17 @@ journalist or publisher</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.utils.post_to_approved_api">
-<span class="sig-prename descclassname"><span class="pre">news.utils.</span></span><span class="sig-name descname"><span class="pre">post_to_approved_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">article</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/utils.html#post_to_approved_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.utils.post_to_approved_api" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">news.utils.</span></span><span class="sig-name descname"><span class="pre">post_to_approved_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">article</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/utils.html#post_to_approved_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.utils.post_to_approved_api" title="Link to this definition"></a></dt>
 <dd><p>Send the approved article to our own /api/approved/ endpoint.</p>
-<p>The request uses the editor’s API token. If the endpoint cannot be
-reached, the error is logged and the approval is kept.</p>
+<p>The request uses the API token of the user who published the article:
+the editor, or the journalist for an independent article. If the
+endpoint cannot be reached, the error is logged and the approval is
+kept.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>article</strong> (<a class="reference internal" href="#news.models.Article" title="news.models.Article"><em>Article</em></a>) – The approved article</p></li>
-<li><p><strong>editor</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The editor who approved it</p></li>
+<li><p><strong>user</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The user who approved or published it</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1662,27 +1870,56 @@ reached, the error is logged and the approval is kept.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="news.utils.update_article_status">
+<span class="sig-prename descclassname"><span class="pre">news.utils.</span></span><span class="sig-name descname"><span class="pre">update_article_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">article</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_publisher_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/utils.html#update_article_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.utils.update_article_status" title="Link to this definition"></a></dt>
+<dd><p>Publish an independent article as soon as its journalist saves it.</p>
+<p>An article with no publisher is the journalist’s own, so it goes live
+when it is saved. An article that is moved under a publisher waits for
+that publisher’s editors again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>article</strong> (<a class="reference internal" href="#news.models.Article" title="news.models.Article"><em>Article</em></a>) – The article that was just saved</p></li>
+<li><p><strong>user</strong> (<a class="reference internal" href="#news.models.User" title="news.models.User"><em>User</em></a>) – The journalist who saved it</p></li>
+<li><p><strong>old_publisher_id</strong> (<em>int</em><em> or </em><em>None</em>) – The article’s publisher before the save, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> for a new or independent article</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of subscribers emailed (0 if nothing was
+published)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-news.views">
 <span id="news-views-module"></span><h2>news.views module<a class="headerlink" href="#module-news.views" title="Link to this heading"></a></h2>
 <p>Views for the website pages (accounts, articles, review and approval,
-newsletters and subscriptions)</p>
+newsletters, subscriptions and publications).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.approve_article_view">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">approve_article_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#approve_article_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.approve_article_view" title="Link to this definition"></a></dt>
-<dd><p>Approve an article (editors only).</p>
+<dd><p>Approve an article (editors of its publisher only).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.article_create">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">article_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#article_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.article_create" title="Link to this definition"></a></dt>
 <dd><p>Let a journalist write a new article.</p>
+<p>Articles for a publisher wait for its editors. Independent articles
+are published immediately.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.article_delete">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">article_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#article_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.article_delete" title="Link to this definition"></a></dt>
-<dd><p>Let an editor or the article’s journalist delete it.</p>
+<dd><p>Let an editor of its publisher or the article’s journalist delete
+it.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1694,20 +1931,14 @@ newsletters and subscriptions)</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.article_edit">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">article_edit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#article_edit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.article_edit" title="Link to this definition"></a></dt>
-<dd><p>Let an editor or the article’s journalist edit it.</p>
+<dd><p>Let an editor of its publisher or the article’s journalist edit
+it.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.article_list">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">article_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#article_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.article_list" title="Link to this definition"></a></dt>
-<dd><p>Show all approved articles.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="news.views.can_manage">
-<span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">can_manage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#can_manage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.can_manage" title="Link to this definition"></a></dt>
-<dd><p>Editors can manage any article or newsletter, journalists only
-their own.</p>
+<dd><p>Show approved articles (editors only see their publishers’).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1735,6 +1966,13 @@ their own.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="news.views.my_publication">
+<span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">my_publication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#my_publication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.my_publication" title="Link to this definition"></a></dt>
+<dd><p>Let a publisher choose their publication’s editors and
+journalists.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="news.views.newsletter_create">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">newsletter_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#newsletter_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.newsletter_create" title="Link to this definition"></a></dt>
 <dd><p>Let a journalist create a newsletter.</p>
@@ -1743,7 +1981,8 @@ their own.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.newsletter_delete">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">newsletter_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#newsletter_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.newsletter_delete" title="Link to this definition"></a></dt>
-<dd><p>Let an editor or the newsletter’s journalist delete it.</p>
+<dd><p>Let an editor who can see it or the newsletter’s journalist delete
+it.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1755,25 +1994,29 @@ their own.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.newsletter_edit">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">newsletter_edit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#newsletter_edit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.newsletter_edit" title="Link to this definition"></a></dt>
-<dd><p>Let an editor or the newsletter’s journalist edit it.</p>
+<dd><p>Let an editor who can see it or the newsletter’s journalist edit
+it.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.newsletter_list">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">newsletter_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#newsletter_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.newsletter_list" title="Link to this definition"></a></dt>
-<dd><p>Show all newsletters.</p>
+<dd><p>Show newsletters (editors only see those written by journalists of
+their publishers).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.register_user">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">register_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#register_user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.register_user" title="Link to this definition"></a></dt>
-<dd><p>Register a new Reader, Journalist or Editor.</p>
+<dd><p>Register a new Reader, Journalist, Editor or Publisher.</p>
+<p>Publishers also give the name of their publication, which is created
+for them.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="news.views.review_articles">
 <span class="sig-prename descclassname"><span class="pre">news.views.</span></span><span class="sig-name descname"><span class="pre">review_articles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/news/views.html#review_articles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#news.views.review_articles" title="Link to this definition"></a></dt>
-<dd><p>Show editors the articles waiting for approval.</p>
+<dd><p>Show editors their publishers’ articles waiting for approval.</p>
 </dd></dl>
 
 <dl class="py function">

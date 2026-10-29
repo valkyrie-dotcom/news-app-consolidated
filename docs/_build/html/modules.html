@@ -80,6 +80,18 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="news.html">news package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="news.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="news.html#module-news.access">news.access module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.articles_to_review"><code class="docutils literal notranslate"><span class="pre">articles_to_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.can_manage_article"><code class="docutils literal notranslate"><span class="pre">can_manage_article()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.can_manage_newsletter"><code class="docutils literal notranslate"><span class="pre">can_manage_newsletter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.can_view_article"><code class="docutils literal notranslate"><span class="pre">can_view_article()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.can_view_newsletter"><code class="docutils literal notranslate"><span class="pre">can_view_newsletter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.editor_without_publisher"><code class="docutils literal notranslate"><span class="pre">editor_without_publisher()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.is_editor"><code class="docutils literal notranslate"><span class="pre">is_editor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.listed_articles"><code class="docutils literal notranslate"><span class="pre">listed_articles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.access.listed_newsletters"><code class="docutils literal notranslate"><span class="pre">listed_newsletters()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="news.html#module-news.admin">news.admin module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.admin.NewsUserAdmin"><code class="docutils literal notranslate"><span class="pre">NewsUserAdmin</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.admin.NewsUserAdmin.add_fieldsets"><code class="docutils literal notranslate"><span class="pre">NewsUserAdmin.add_fieldsets</span></code></a></li>
@@ -96,7 +108,6 @@
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.approved_log"><code class="docutils literal notranslate"><span class="pre">approved_log()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.article_detail"><code class="docutils literal notranslate"><span class="pre">article_detail()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.article_list"><code class="docutils literal notranslate"><span class="pre">article_list()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.can_manage"><code class="docutils literal notranslate"><span class="pre">can_manage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.error"><code class="docutils literal notranslate"><span class="pre">error()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.may_use_publisher"><code class="docutils literal notranslate"><span class="pre">may_use_publisher()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.api_views.newsletter_detail"><code class="docutils literal notranslate"><span class="pre">newsletter_detail()</span></code></a></li>
@@ -127,6 +138,13 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.NewsletterForm.base_fields"><code class="docutils literal notranslate"><span class="pre">NewsletterForm.base_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.NewsletterForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">NewsletterForm.declared_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.NewsletterForm.media"><code class="docutils literal notranslate"><span class="pre">NewsletterForm.media</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.forms.PublicationForm"><code class="docutils literal notranslate"><span class="pre">PublicationForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.PublicationForm.Meta"><code class="docutils literal notranslate"><span class="pre">PublicationForm.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.PublicationForm.base_fields"><code class="docutils literal notranslate"><span class="pre">PublicationForm.base_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.PublicationForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">PublicationForm.declared_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.forms.PublicationForm.media"><code class="docutils literal notranslate"><span class="pre">PublicationForm.media</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.forms.SubscriptionForm"><code class="docutils literal notranslate"><span class="pre">SubscriptionForm</span></code></a><ul>
@@ -184,6 +202,8 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.journalists"><code class="docutils literal notranslate"><span class="pre">Publisher.journalists</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.name"><code class="docutils literal notranslate"><span class="pre">Publisher.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.objects"><code class="docutils literal notranslate"><span class="pre">Publisher.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.owner"><code class="docutils literal notranslate"><span class="pre">Publisher.owner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.owner_id"><code class="docutils literal notranslate"><span class="pre">Publisher.owner_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.Publisher.subscribers"><code class="docutils literal notranslate"><span class="pre">Publisher.subscribers</span></code></a></li>
 </ul>
 </li>
@@ -193,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.JOURNALIST"><code class="docutils literal notranslate"><span class="pre">User.JOURNALIST</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">User.MultipleObjectsReturned</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.NotUpdated"><code class="docutils literal notranslate"><span class="pre">User.NotUpdated</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.PUBLISHER"><code class="docutils literal notranslate"><span class="pre">User.PUBLISHER</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.READER"><code class="docutils literal notranslate"><span class="pre">User.READER</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.ROLE_CHOICES"><code class="docutils literal notranslate"><span class="pre">User.ROLE_CHOICES</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.ROLE_GROUPS"><code class="docutils literal notranslate"><span class="pre">User.ROLE_GROUPS</span></code></a></li>
@@ -219,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.logentry_set"><code class="docutils literal notranslate"><span class="pre">User.logentry_set</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.newsletters"><code class="docutils literal notranslate"><span class="pre">User.newsletters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.password"><code class="docutils literal notranslate"><span class="pre">User.password</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.publication"><code class="docutils literal notranslate"><span class="pre">User.publication</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.reader_subscribers"><code class="docutils literal notranslate"><span class="pre">User.reader_subscribers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.role"><code class="docutils literal notranslate"><span class="pre">User.role</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.models.User.save"><code class="docutils literal notranslate"><span class="pre">User.save()</span></code></a></li>
@@ -273,6 +295,14 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.DeleteArticleTests.test_reader_cannot_delete"><code class="docutils literal notranslate"><span class="pre">DeleteArticleTests.test_reader_cannot_delete()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.tests.EditorScopeTests"><code class="docutils literal notranslate"><span class="pre">EditorScopeTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.EditorScopeTests.test_editor_only_sees_own_publishers_articles"><code class="docutils literal notranslate"><span class="pre">EditorScopeTests.test_editor_only_sees_own_publishers_articles()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.tests.IndependentArticleTests"><code class="docutils literal notranslate"><span class="pre">IndependentArticleTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.IndependentArticleTests.test_independent_article_is_published_on_save"><code class="docutils literal notranslate"><span class="pre">IndependentArticleTests.test_independent_article_is_published_on_save()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.tests.NewsTestCase"><code class="docutils literal notranslate"><span class="pre">NewsTestCase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.NewsTestCase.login_as"><code class="docutils literal notranslate"><span class="pre">NewsTestCase.login_as()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.NewsTestCase.setUp"><code class="docutils literal notranslate"><span class="pre">NewsTestCase.setUp()</span></code></a></li>
@@ -282,6 +312,11 @@
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.NewsletterTests.setUp"><code class="docutils literal notranslate"><span class="pre">NewsletterTests.setUp()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.NewsletterTests.test_newsletter_shows_only_approved_articles"><code class="docutils literal notranslate"><span class="pre">NewsletterTests.test_newsletter_shows_only_approved_articles()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.NewsletterTests.test_reader_cannot_create_newsletter"><code class="docutils literal notranslate"><span class="pre">NewsletterTests.test_reader_cannot_create_newsletter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.tests.PublisherTests"><code class="docutils literal notranslate"><span class="pre">PublisherTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.PublisherTests.test_publisher_assigns_editors_and_journalists"><code class="docutils literal notranslate"><span class="pre">PublisherTests.test_publisher_assigns_editors_and_journalists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="news.html#news.tests.PublisherTests.test_publisher_registers_with_publication"><code class="docutils literal notranslate"><span class="pre">PublisherTests.test_publisher_registers_with_publication()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.tests.SubscribedArticleTests"><code class="docutils literal notranslate"><span class="pre">SubscribedArticleTests</span></code></a><ul>
@@ -298,6 +333,7 @@
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.utils.email_subscribers"><code class="docutils literal notranslate"><span class="pre">email_subscribers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.utils.get_subscriber_emails"><code class="docutils literal notranslate"><span class="pre">get_subscriber_emails()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.utils.post_to_approved_api"><code class="docutils literal notranslate"><span class="pre">post_to_approved_api()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.utils.update_article_status"><code class="docutils literal notranslate"><span class="pre">update_article_status()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="news.html#module-news.views">news.views module</a><ul>
@@ -307,11 +343,11 @@
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.article_detail"><code class="docutils literal notranslate"><span class="pre">article_detail()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.article_edit"><code class="docutils literal notranslate"><span class="pre">article_edit()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.article_list"><code class="docutils literal notranslate"><span class="pre">article_list()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="news.html#news.views.can_manage"><code class="docutils literal notranslate"><span class="pre">can_manage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.forbidden"><code class="docutils literal notranslate"><span class="pre">forbidden()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.login_user"><code class="docutils literal notranslate"><span class="pre">login_user()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.logout_user"><code class="docutils literal notranslate"><span class="pre">logout_user()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.my_articles"><code class="docutils literal notranslate"><span class="pre">my_articles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="news.html#news.views.my_publication"><code class="docutils literal notranslate"><span class="pre">my_publication()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.newsletter_create"><code class="docutils literal notranslate"><span class="pre">newsletter_create()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.newsletter_delete"><code class="docutils literal notranslate"><span class="pre">newsletter_delete()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="news.html#news.views.newsletter_detail"><code class="docutils literal notranslate"><span class="pre">newsletter_detail()</span></code></a></li>

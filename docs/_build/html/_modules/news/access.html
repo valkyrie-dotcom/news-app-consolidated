@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>news.access &mdash; News Application 00.00.01 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d7bb8d4d"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            News Application
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">news</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">News Application</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">news.access</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for news.access</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Who can see and manage articles and newsletters.</span>
+
+<span class="sd">Editors only see articles and newsletters of publishers they are</span>
+<span class="sd">assigned to. Everyone else sees all approved content, journalists also</span>
+<span class="sd">see their own unapproved articles.</span>
+<span class="sd">"""</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Article</span><span class="p">,</span> <span class="n">Newsletter</span><span class="p">,</span> <span class="n">User</span>
+
+
+<div class="viewcode-block" id="is_editor">
+<a class="viewcode-back" href="../../news.html#news.access.is_editor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return True if the user has the Editor role."""</span>
+    <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="n">User</span><span class="o">.</span><span class="n">EDITOR</span></div>
+
+
+
+<div class="viewcode-block" id="listed_articles">
+<a class="viewcode-back" href="../../news.html#news.access.listed_articles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">listed_articles</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Approved articles for the user's article list (editors only get</span>
+<span class="sd">    their publishers' articles)."""</span>
+    <span class="n">articles</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">approved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+        <span class="n">articles</span> <span class="o">=</span> <span class="n">articles</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">publisher__editors</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">articles</span></div>
+
+
+
+<div class="viewcode-block" id="articles_to_review">
+<a class="viewcode-back" href="../../news.html#news.access.articles_to_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">articles_to_review</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Unapproved articles of the editor's publishers."""</span>
+    <span class="k">return</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">approved</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">publisher__editors</span><span class="o">=</span><span class="n">user</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="can_view_article">
+<a class="viewcode-back" href="../../news.html#news.access.can_view_article">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">can_view_article</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Editors may open their publishers' articles. Everyone else may open</span>
+<span class="sd">    approved articles, and journalists their own."""</span>
+    <span class="k">if</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">article</span><span class="o">.</span><span class="n">publisher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">article</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">editors</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span> <span class="ow">or</span> <span class="n">article</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span></div>
+
+
+
+<div class="viewcode-block" id="can_manage_article">
+<a class="viewcode-back" href="../../news.html#news.access.can_manage_article">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">can_manage_article</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Editors may manage their publishers' articles, journalists their</span>
+<span class="sd">    own."""</span>
+    <span class="k">if</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">can_view_article</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">article</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">article</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span></div>
+
+
+
+<div class="viewcode-block" id="listed_newsletters">
+<a class="viewcode-back" href="../../news.html#news.access.listed_newsletters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">listed_newsletters</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Newsletters the user may see. Editors only get newsletters written</span>
+<span class="sd">    by journalists of their publishers."""</span>
+    <span class="k">if</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Newsletter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">author__journalist_of__editors</span><span class="o">=</span><span class="n">user</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Newsletter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="can_view_newsletter">
+<a class="viewcode-back" href="../../news.html#news.access.can_view_newsletter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">can_view_newsletter</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">newsletter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return True if the newsletter is one the user may see."""</span>
+    <span class="k">return</span> <span class="n">listed_newsletters</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">newsletter</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="can_manage_newsletter">
+<a class="viewcode-back" href="../../news.html#news.access.can_manage_newsletter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">can_manage_newsletter</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">newsletter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Editors may manage the newsletters they can see, journalists their</span>
+<span class="sd">    own."""</span>
+    <span class="k">if</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">can_view_newsletter</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">newsletter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newsletter</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span></div>
+
+
+
+<div class="viewcode-block" id="editor_without_publisher">
+<a class="viewcode-back" href="../../news.html#news.access.editor_without_publisher">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">editor_without_publisher</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return True for an editor who has not been added to a publisher."""</span>
+    <span class="k">return</span> <span class="n">is_editor</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">editor_of</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Leandri Swanepoel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

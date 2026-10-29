@@ -80,16 +80,20 @@
 <span class="w">    </span><span class="sd">"""A user of the news application with a role.</span>
 
 <span class="sd">    Readers subscribe to publishers and journalists. Journalists write</span>
-<span class="sd">    articles and newsletters. Editors review and approve articles.</span>
+<span class="sd">    articles and newsletters. Editors review and approve their publishers'</span>
+<span class="sd">    articles. Publishers own a publication and choose its editors and</span>
+<span class="sd">    journalists.</span>
 <span class="sd">    """</span>
 
     <span class="n">READER</span> <span class="o">=</span> <span class="s2">"reader"</span>
     <span class="n">EDITOR</span> <span class="o">=</span> <span class="s2">"editor"</span>
     <span class="n">JOURNALIST</span> <span class="o">=</span> <span class="s2">"journalist"</span>
+    <span class="n">PUBLISHER</span> <span class="o">=</span> <span class="s2">"publisher"</span>
     <span class="n">ROLE_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="n">READER</span><span class="p">,</span> <span class="s2">"Reader"</span><span class="p">),</span>
         <span class="p">(</span><span class="n">EDITOR</span><span class="p">,</span> <span class="s2">"Editor"</span><span class="p">),</span>
         <span class="p">(</span><span class="n">JOURNALIST</span><span class="p">,</span> <span class="s2">"Journalist"</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">PUBLISHER</span><span class="p">,</span> <span class="s2">"Publisher"</span><span class="p">),</span>
     <span class="p">]</span>
 
     <span class="c1"># The group each role is added to</span>
@@ -97,6 +101,7 @@
         <span class="n">READER</span><span class="p">:</span> <span class="s2">"Readers"</span><span class="p">,</span>
         <span class="n">EDITOR</span><span class="p">:</span> <span class="s2">"Editors"</span><span class="p">,</span>
         <span class="n">JOURNALIST</span><span class="p">:</span> <span class="s2">"Journalists"</span><span class="p">,</span>
+        <span class="n">PUBLISHER</span><span class="p">:</span> <span class="s2">"Publishers"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">role</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
@@ -176,9 +181,19 @@
 <div class="viewcode-block" id="Publisher">
 <a class="viewcode-back" href="../../news.html#news.forms.Publisher">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Publisher</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""A publication that can have several editors and journalists."""</span>
+<span class="w">    </span><span class="sd">"""A publication that can have several editors and journalists.</span>
+
+<span class="sd">    A user with the Publisher role owns the publication and chooses its</span>
+<span class="sd">    editors and journalists.</span>
+<span class="sd">    """</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># The publisher user who owns this publication.</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span>
+        <span class="n">User</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"publication"</span><span class="p">,</span>
+        <span class="n">limit_choices_to</span><span class="o">=</span><span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="n">User</span><span class="o">.</span><span class="n">PUBLISHER</span><span class="p">},</span>
+    <span class="p">)</span>
     <span class="n">editors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
         <span class="n">User</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">"editor_of"</span><span class="p">,</span>
         <span class="n">limit_choices_to</span><span class="o">=</span><span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="n">User</span><span class="o">.</span><span class="n">EDITOR</span><span class="p">},</span>
