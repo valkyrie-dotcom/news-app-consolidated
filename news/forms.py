@@ -1,8 +1,8 @@
-"""Forms for articles, newsletters and reader subscriptions.
+"""Forms for articles, newsletters, reader subscriptions and publications.
 Largely reused from eCommerce task."""
 from django import forms
 
-from .models import Article, Newsletter, User
+from .models import Article, Newsletter, Publisher, User
 
 
 class ArticleForm(forms.ModelForm):
@@ -14,9 +14,17 @@ class ArticleForm(forms.ModelForm):
         model = Article
         fields = ["title", "content", "publisher"]
 
-    def __init__(self, *args, journalist=None, **kwargs):
-        """Limit the publishers to those the journalist belongs to."""
+    def __init__(self, *args, journalist=None, allow_publisher=True,
+                 **kwargs):
+        """Limit the publishers to those the journalist belongs to.
+
+        Editors edit with allow_publisher=False, because they cannot move
+        an article to another publisher or make it independent.
+        """
         super().__init__(*args, **kwargs)
+        if not allow_publisher:
+            del self.fields["publisher"]
+            return
         # A journalist can only publish for publishers they belong to
         publisher_field = self.fields["publisher"]
         publisher_field.required = False  # optional for independents
@@ -66,3 +74,17 @@ class SubscriptionForm(forms.ModelForm):
         self.fields["subscribed_journalists"].queryset = User.objects.filter(
             role=User.JOURNALIST
         )
+
+
+class PublicationForm(forms.ModelForm):
+    """Form for a publisher to choose their editors and journalists."""
+
+    class Meta:
+        """Use the Publisher model's editors and journalists fields."""
+
+        model = Publisher
+        fields = ["editors", "journalists"]
+        widgets = {
+            "editors": forms.CheckboxSelectMultiple,
+            "journalists": forms.CheckboxSelectMultiple,
+        }

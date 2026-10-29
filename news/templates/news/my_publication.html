@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My publication{% endblock title %}
+{% block content %}
+    <h1>{{ publisher.name }}</h1>
+    <p>Choose the editors and journalists who work for your publication.
+       Editors review and approve its articles; journalists can write for it.</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock content %}

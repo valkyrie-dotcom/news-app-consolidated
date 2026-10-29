@@ -8,7 +8,7 @@
             <h2><a href="{% url 'news:article_detail' article.pk %}">{{ article.title }}</a></h2>
             <p class="meta">
                 {% if article.publisher %}{{ article.publisher.name }}{% else %}Independent{% endif %}
-                | {% if article.approved %}Approved{% else %}<span class="pending">Awaiting approval</span>{% endif %}
+                | {% if article.approved %}{% if article.publisher %}Approved{% else %}Published{% endif %}{% else %}<span class="pending">Awaiting approval</span>{% endif %}
             </p>
         </div>
     {% empty %}

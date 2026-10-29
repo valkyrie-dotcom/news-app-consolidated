@@ -156,21 +156,23 @@
 
 <div class="viewcode-block" id="post_to_approved_api">
 <a class="viewcode-back" href="../../news.html#news.utils.post_to_approved_api">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">post_to_approved_api</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">editor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">post_to_approved_api</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Send the approved article to our own /api/approved/ endpoint.</span>
 
-<span class="sd">    The request uses the editor's API token. If the endpoint cannot be</span>
-<span class="sd">    reached, the error is logged and the approval is kept.</span>
+<span class="sd">    The request uses the API token of the user who published the article:</span>
+<span class="sd">    the editor, or the journalist for an independent article. If the</span>
+<span class="sd">    endpoint cannot be reached, the error is logged and the approval is</span>
+<span class="sd">    kept.</span>
 
 <span class="sd">    :param Article article: The approved article</span>
-<span class="sd">    :param User editor: The editor who approved it</span>
+<span class="sd">    :param User user: The user who approved or published it</span>
 <span class="sd">    :returns: The response status code, or ``None`` if the request failed</span>
 <span class="sd">    :rtype: int or None</span>
 <span class="sd">    """</span>
     <span class="c1"># Imported here to avoid a circular import with serializers.py</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArticleSerializer</span>
 
-    <span class="n">token</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">editor</span><span class="p">)</span>
+    <span class="n">token</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
             <span class="n">settings</span><span class="o">.</span><span class="n">APPROVED_API_URL</span><span class="p">,</span>
@@ -187,21 +189,53 @@
 
 <div class="viewcode-block" id="approve_article">
 <a class="viewcode-back" href="../../news.html#news.utils.approve_article">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">approve_article</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">editor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">approve_article</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Approve an article, email its subscribers and log it to the API.</span>
 
-<span class="sd">    Both the editor's approve page and the API's PUT call this function.</span>
+<span class="sd">    Editors approve their publishers' articles on the approve page or with</span>
+<span class="sd">    the API's PUT. Independent articles are approved when the journalist</span>
+<span class="sd">    saves them (see :func:`update_article_status`).</span>
 
 <span class="sd">    :param Article article: The article to approve</span>
-<span class="sd">    :param User editor: The editor approving it</span>
+<span class="sd">    :param User user: The editor approving it, or the journalist</span>
+<span class="sd">        publishing an independent article</span>
 <span class="sd">    :returns: The number of subscribers emailed</span>
 <span class="sd">    :rtype: int</span>
 <span class="sd">    """</span>
     <span class="n">article</span><span class="o">.</span><span class="n">approved</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">article</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
     <span class="n">sent</span> <span class="o">=</span> <span class="n">email_subscribers</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
-    <span class="n">post_to_approved_api</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">editor</span><span class="p">)</span>
+    <span class="n">post_to_approved_api</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sent</span></div>
+
+
+
+<div class="viewcode-block" id="update_article_status">
+<a class="viewcode-back" href="../../news.html#news.utils.update_article_status">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_article_status</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">old_publisher_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Publish an independent article as soon as its journalist saves it.</span>
+
+<span class="sd">    An article with no publisher is the journalist's own, so it goes live</span>
+<span class="sd">    when it is saved. An article that is moved under a publisher waits for</span>
+<span class="sd">    that publisher's editors again.</span>
+
+<span class="sd">    :param Article article: The article that was just saved</span>
+<span class="sd">    :param User user: The journalist who saved it</span>
+<span class="sd">    :param old_publisher_id: The article's publisher before the save, or</span>
+<span class="sd">        ``None`` for a new or independent article</span>
+<span class="sd">    :type old_publisher_id: int or None</span>
+<span class="sd">    :returns: The number of subscribers emailed (0 if nothing was</span>
+<span class="sd">        published)</span>
+<span class="sd">    :rtype: int</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">article</span><span class="o">.</span><span class="n">publisher_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">approve_article</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">article</span><span class="o">.</span><span class="n">publisher_id</span> <span class="o">!=</span> <span class="n">old_publisher_id</span> <span class="ow">and</span> <span class="n">article</span><span class="o">.</span><span class="n">approved</span><span class="p">:</span>
+        <span class="c1"># Moved under a (different) publisher, so its editors must approve</span>
+        <span class="n">article</span><span class="o">.</span><span class="n">approved</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">article</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 </pre></div>
 

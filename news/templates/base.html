@@ -21,6 +21,8 @@
                     <a href="{% url 'news:my_articles' %}">My articles</a>
                     <a href="{% url 'news:article_create' %}">Write an article</a>
                     <a href="{% url 'news:newsletter_create' %}">Create a newsletter</a>
+                {% elif user.role == "publisher" %}
+                    <a href="{% url 'news:my_publication' %}">My publication</a>
                 {% elif user.role == "editor" %}
                     <a href="{% url 'news:review_articles' %}">Review articles</a>
                 {% endif %}

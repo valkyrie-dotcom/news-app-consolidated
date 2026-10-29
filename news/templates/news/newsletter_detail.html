@@ -25,7 +25,7 @@
         </tbody>
     </table>
 
-    {% if user.role == "editor" or newsletter.author == user %}
+    {% if can_manage %}
         {% if perms.news.change_newsletter %}<a class="btn" href="{% url 'news:newsletter_edit' newsletter.pk %}">✏️ Edit</a>{% endif %}
         {% if perms.news.delete_newsletter %}<a class="btn btn-danger" href="{% url 'news:newsletter_delete' newsletter.pk %}">🗑️ Delete</a>{% endif %}
     {% endif %}

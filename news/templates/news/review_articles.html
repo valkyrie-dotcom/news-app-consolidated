@@ -2,6 +2,9 @@
 {% block title %}Review articles{% endblock title %}
 {% block content %}
     <h1>Articles awaiting approval</h1>
+    {% if notice %}
+        <p class="alert alert-error">{{ notice }}</p>
+    {% endif %}
     {% for article in articles %}
         <div class="card">
             <h2><a href="{% url 'news:article_detail' article.pk %}">{{ article.title }}</a></h2>

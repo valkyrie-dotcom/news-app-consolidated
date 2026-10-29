@@ -1,5 +1,5 @@
 """Views for the website pages (accounts, articles, review and approval,
-newsletters and subscriptions)"""
+newsletters, subscriptions and publications)."""
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -8,9 +8,20 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ArticleForm, NewsletterForm, SubscriptionForm
-from .models import Article, Newsletter, User
-from .utils import approve_article
+from .access import (
+    articles_to_review, can_manage_article, can_manage_newsletter,
+    can_view_article, can_view_newsletter, editor_without_publisher,
+    listed_articles, listed_newsletters,
+)
+from .forms import (
+    ArticleForm, NewsletterForm, PublicationForm, SubscriptionForm,
+)
+from .models import Article, Newsletter, Publisher, User
+from .utils import approve_article, update_article_status
+
+# Shown to editors who have not been added to a publisher yet
+NO_PUBLISHER_NOTICE = ("A publisher needs to add you before you can see "
+                       "and review articles.")
 
 
 def forbidden(request, message):
@@ -18,12 +29,6 @@ def forbidden(request, message):
     return render(
         request, "news/forbidden.html", {"error": message}, status=403
     )
-
-
-def can_manage(user, item):
-    """Editors can manage any article or newsletter, journalists only
-    their own."""
-    return user.role == User.EDITOR or item.author == user
 
 
 # ---------- Accounts ----------
@@ -46,13 +51,18 @@ def login_user(request):
 
 
 def register_user(request):
-    """Register a new Reader, Journalist or Editor."""
+    """Register a new Reader, Journalist, Editor or Publisher.
+
+    Publishers also give the name of their publication, which is created
+    for them.
+    """
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password")
         password_conf = request.POST.get("password_conf")
         role = request.POST.get("role")
+        publication_name = request.POST.get("publication_name", "").strip()
 
         # Check the input before creating the user
         error = None
@@ -66,8 +76,14 @@ def register_user(request):
         # to the right person
         elif User.objects.filter(email__iexact=email).exists():
             error = "An account with that email address already exists."
-        elif role not in (User.READER, User.JOURNALIST, User.EDITOR):
-            error = "Please choose Reader, Journalist or Editor."
+        elif role not in (User.READER, User.JOURNALIST, User.EDITOR,
+                          User.PUBLISHER):
+            error = "Please choose Reader, Journalist, Editor or Publisher."
+        elif role == User.PUBLISHER and not publication_name:
+            error = "Please enter the name of your publication."
+        elif role == User.PUBLISHER and Publisher.objects.filter(
+                name__iexact=publication_name).exists():
+            error = "A publication with that name already exists."
         elif not password:
             error = "Please enter a password."
         elif password != password_conf:
@@ -85,6 +101,11 @@ def register_user(request):
         user = User.objects.create_user(
             username=username, email=email, password=password, role=role
         )
+        if role == User.PUBLISHER:
+            # The publisher owns their publication and chooses its staff
+            Publisher.objects.create(name=publication_name, owner=user)
+            login(request, user)
+            return redirect("news:my_publication")
         login(request, user)
         return redirect("news:article_list")
     return render(request, "news/register.html")
@@ -100,12 +121,16 @@ def logout_user(request):
 
 @login_required
 def article_list(request):
-    """Show all approved articles."""
-    if not request.user.has_perm("news.view_article"):
+    """Show approved articles (editors only see their publishers')."""
+    user = request.user
+    if not user.has_perm("news.view_article"):
         return forbidden(request, "You do not have permission to view "
                                   "articles.")
-    articles = Article.objects.filter(approved=True)
-    return render(request, "news/article_list.html", {"articles": articles})
+    return render(request, "news/article_list.html", {
+        "articles": listed_articles(user),
+        "notice": NO_PUBLISHER_NOTICE if editor_without_publisher(user)
+        else None,
+    })
 
 
 @login_required
@@ -116,10 +141,14 @@ def article_detail(request, pk):
         return forbidden(request, "You do not have permission to view "
                                   "articles.")
     article = get_object_or_404(Article, pk=pk)
-    # Unapproved articles are only shown to editors and their author
-    if not article.approved and not can_manage(user, article):
+    # Editors only see their publishers' articles, and unapproved articles
+    # are only shown to those editors and their author
+    if not can_view_article(user, article):
         raise Http404("Article not found.")
-    return render(request, "news/article_detail.html", {"article": article})
+    return render(request, "news/article_detail.html", {
+        "article": article,
+        "can_manage": can_manage_article(user, article),
+    })
 
 
 @login_required
@@ -133,7 +162,11 @@ def my_articles(request):
 
 @login_required
 def article_create(request):
-    """Let a journalist write a new article."""
+    """Let a journalist write a new article.
+
+    Articles for a publisher wait for its editors. Independent articles
+    are published immediately.
+    """
     user = request.user
     if not user.has_perm("news.add_article"):
         return forbidden(request, "Only journalists can write articles.")
@@ -142,7 +175,12 @@ def article_create(request):
         article = form.save(commit=False)
         article.author = user
         article.save()
-        messages.success(request, "Article submitted for review.")
+        sent = update_article_status(article, user)
+        if article.approved:
+            messages.success(request, f"Article published and emailed to "
+                                      f"{sent} subscriber(s).")
+        else:
+            messages.success(request, "Article submitted for review.")
         return redirect("news:my_articles")
     return render(request, "news/article_form.html", {
         "form": form, "heading": "Write an article",
@@ -151,17 +189,26 @@ def article_create(request):
 
 @login_required
 def article_edit(request, pk):
-    """Let an editor or the article's journalist edit it."""
+    """Let an editor of its publisher or the article's journalist edit
+    it."""
     user = request.user
     article = get_object_or_404(Article, pk=pk)
+    if not can_view_article(user, article):
+        raise Http404("Article not found.")
     if not user.has_perm("news.change_article") or \
-            not can_manage(user, article):
+            not can_manage_article(user, article):
         return forbidden(request, "You cannot edit this article.")
+    old_publisher_id = article.publisher_id
     form = ArticleForm(
-        request.POST or None, instance=article, journalist=article.author
+        request.POST or None, instance=article, journalist=article.author,
+        allow_publisher=user.role == User.JOURNALIST,
     )
     if request.method == "POST" and form.is_valid():
-        form.save()
+        article = form.save()
+        if user.role == User.JOURNALIST:
+            # Publishes independent articles, or sends an article moved
+            # under a publisher back for approval
+            update_article_status(article, user, old_publisher_id)
         messages.success(request, "Article updated.")
         return redirect("news:article_detail", pk=article.pk)
     return render(request, "news/article_form.html", {
@@ -171,11 +218,14 @@ def article_edit(request, pk):
 
 @login_required
 def article_delete(request, pk):
-    """Let an editor or the article's journalist delete it."""
+    """Let an editor of its publisher or the article's journalist delete
+    it."""
     user = request.user
     article = get_object_or_404(Article, pk=pk)
+    if not can_view_article(user, article):
+        raise Http404("Article not found.")
     if not user.has_perm("news.delete_article") or \
-            not can_manage(user, article):
+            not can_manage_article(user, article):
         return forbidden(request, "You cannot delete this article.")
     if request.method == "POST":
         article.delete()
@@ -188,21 +238,25 @@ def article_delete(request, pk):
 
 @login_required
 def review_articles(request):
-    """Show editors the articles waiting for approval."""
-    if request.user.role != User.EDITOR:
+    """Show editors their publishers' articles waiting for approval."""
+    user = request.user
+    if user.role != User.EDITOR:
         return forbidden(request, "Only editors can review articles.")
-    articles = Article.objects.filter(approved=False)
     return render(request, "news/review_articles.html", {
-        "articles": articles,
+        "articles": articles_to_review(user),
+        "notice": NO_PUBLISHER_NOTICE if editor_without_publisher(user)
+        else None,
     })
 
 
 @login_required
 def approve_article_view(request, pk):
-    """Approve an article (editors only)."""
+    """Approve an article (editors of its publisher only)."""
     if request.user.role != User.EDITOR:
         return forbidden(request, "Only editors can approve articles.")
-    article = get_object_or_404(Article, pk=pk, approved=False)
+    article = get_object_or_404(
+        Article, pk=pk, approved=False, publisher__editors=request.user
+    )
     if request.method == "POST":
         # Approves, emails subscribers and posts to /api/approved/
         sent = approve_article(article, request.user)
@@ -217,13 +271,16 @@ def approve_article_view(request, pk):
 
 @login_required
 def newsletter_list(request):
-    """Show all newsletters."""
-    if not request.user.has_perm("news.view_newsletter"):
+    """Show newsletters (editors only see those written by journalists of
+    their publishers)."""
+    user = request.user
+    if not user.has_perm("news.view_newsletter"):
         return forbidden(request, "You do not have permission to view "
                                   "newsletters.")
-    newsletters = Newsletter.objects.all()
     return render(request, "news/newsletter_list.html", {
-        "newsletters": newsletters,
+        "newsletters": listed_newsletters(user),
+        "notice": NO_PUBLISHER_NOTICE if editor_without_publisher(user)
+        else None,
     })
 
 
@@ -234,10 +291,13 @@ def newsletter_detail(request, pk):
         return forbidden(request, "You do not have permission to view "
                                   "newsletters.")
     newsletter = get_object_or_404(Newsletter, pk=pk)
+    if not can_view_newsletter(request.user, newsletter):
+        raise Http404("Newsletter not found.")
     # Readers only see the approved articles in a newsletter
     articles = newsletter.articles.filter(approved=True)
     return render(request, "news/newsletter_detail.html", {
         "newsletter": newsletter, "articles": articles,
+        "can_manage": can_manage_newsletter(request.user, newsletter),
     })
 
 
@@ -263,11 +323,14 @@ def newsletter_create(request):
 
 @login_required
 def newsletter_edit(request, pk):
-    """Let an editor or the newsletter's journalist edit it."""
+    """Let an editor who can see it or the newsletter's journalist edit
+    it."""
     user = request.user
     newsletter = get_object_or_404(Newsletter, pk=pk)
+    if not can_view_newsletter(user, newsletter):
+        raise Http404("Newsletter not found.")
     if not user.has_perm("news.change_newsletter") or \
-            not can_manage(user, newsletter):
+            not can_manage_newsletter(user, newsletter):
         return forbidden(request, "You cannot edit this newsletter.")
     form = NewsletterForm(request.POST or None, instance=newsletter)
     if request.method == "POST" and form.is_valid():
@@ -281,11 +344,14 @@ def newsletter_edit(request, pk):
 
 @login_required
 def newsletter_delete(request, pk):
-    """Let an editor or the newsletter's journalist delete it."""
+    """Let an editor who can see it or the newsletter's journalist delete
+    it."""
     user = request.user
     newsletter = get_object_or_404(Newsletter, pk=pk)
+    if not can_view_newsletter(user, newsletter):
+        raise Http404("Newsletter not found.")
     if not user.has_perm("news.delete_newsletter") or \
-            not can_manage(user, newsletter):
+            not can_manage_newsletter(user, newsletter):
         return forbidden(request, "You cannot delete this newsletter.")
     if request.method == "POST":
         newsletter.delete()
@@ -308,3 +374,26 @@ def subscriptions(request):
         messages.success(request, "Subscriptions saved.")
         return redirect("news:subscriptions")
     return render(request, "news/subscriptions.html", {"form": form})
+
+
+# ---------- Publishers: editors and journalists ----------
+
+@login_required
+def my_publication(request):
+    """Let a publisher choose their publication's editors and
+    journalists."""
+    user = request.user
+    if user.role != User.PUBLISHER or \
+            not user.has_perm("news.change_publisher"):
+        return forbidden(request, "Only publishers have a publication.")
+    publisher = Publisher.objects.filter(owner=user).first()
+    if publisher is None:
+        return forbidden(request, "You do not have a publication yet.")
+    form = PublicationForm(request.POST or None, instance=publisher)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Editors and journalists saved.")
+        return redirect("news:my_publication")
+    return render(request, "news/my_publication.html", {
+        "form": form, "publisher": publisher,
+    })

@@ -21,6 +21,11 @@
         <label class="radio-option"><input type="radio" name="role" value="reader" checked> Reader</label>
         <label class="radio-option"><input type="radio" name="role" value="journalist"> Journalist</label>
         <label class="radio-option"><input type="radio" name="role" value="editor"> Editor</label>
+        <label class="radio-option"><input type="radio" name="role" value="publisher"> Publisher</label>
+
+        <!-- Only needed for publishers: their publication is created for them -->
+        <label for="publication_name">Publication name (publishers only)</label>
+        <input type="text" id="publication_name" name="publication_name">
 
         <br>
         <button type="submit">Register</button>
