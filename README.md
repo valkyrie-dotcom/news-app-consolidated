@@ -1,9 +1,10 @@
 # News Application
 
-A Django news application where independent journalists write and submit
-articles for approval and posting by editors. Readers subscribe to
-publishers and journalists to get new articles by email. A RESTful API with
-token authentication serves the articles to third-party clients.
+A Django news application where journalists write articles for publishers
+(which are approved and posted by the publishers' editors) or publish
+independent articles of their own. Readers subscribe to publishers and
+journalists to get new articles by email. A RESTful API with token
+authentication serves the articles to third-party clients.
 
 You can run the project in two ways:
 
@@ -18,14 +19,23 @@ GitHub repository: https://github.com/valkyrie-dotcom/news-app-consolidated
 
 ## Features
 
-* **Roles:** Reader, Journalist and Editor, each in a group with its own
-  permissions.
+* **Roles:** Reader, Journalist, Editor and Publisher, each in a group with
+  its own permissions.
 * **Readers:** read approved articles and newsletters, subscribe to publishers
   and journalists, and receive approved articles by email.
+* **Publishers:** register with the name of their publication, then choose
+  the editors and journalists who work for it on the **My publication** page.
 * **Journalists:** write, edit and delete their own articles and newsletters.
-* **Editors:** review and approve articles, and edit or delete any article or
-  newsletter. Approving an article emails it to subscribers and posts it to
-  the app's own `/api/approved/` endpoint.
+  Articles written for a publisher wait for one of its editors to approve
+  them. Independent articles (no publisher) are published after saving.
+* **Editors:** review and approve articles of the publishers they belong
+  to, and edit or delete those articles and the newsletters of those
+  publishers' journalists. Editors only see their own publishers' articles
+  and newsletters. To read everything else, register a separate Reader
+  account.
+* **Publishing:** when an article is approved, or an independent article is
+  saved, it is emailed to subscribers and posted to the app's own
+  `/api/approved/` endpoint.
 * **Registration:** users confirm their password, and each email address can
   only be used for one account.
 * **API:** token authentication and role-based access.
@@ -147,16 +157,8 @@ under **Security > App passwords**).
 python manage.py migrate
 ```
 
-This also creates the **Readers**, **Editors** and **Journalists** groups
-with their permissions.
-
-### 9. Create an admin user
-
-```bash
-python manage.py createsuperuser
-```
-
-You need this to set up publishers (see below).
+This also creates the **Readers**, **Editors**, **Journalists** and
+**Publishers** groups with their permissions.
 
 ## Running the project
 
@@ -166,12 +168,6 @@ python manage.py runserver
 
 Open http://127.0.0.1:8000/ in your browser. Press `Ctrl + C` in the
 terminal to stop the server.
-
-Readers, journalists and editors register on the site and choose their
-role. To set up a publisher, log in to http://127.0.0.1:8000/admin/ with
-your admin user, create a **Publisher**, and choose its editors and
-journalists. Journalists can only write articles for publishers they belong
-to.
 
 If no email details are set in `.env`, emails (approved articles sent to
 subscribers) are printed in the terminal.
@@ -206,11 +202,27 @@ The container creates the tables and the role groups, then starts the
 server. Open http://localhost:8000/ in your browser. On Play with Docker,
 click the **8000** link that appears at the top of the page.
 
-### 4. Create an admin user
+### 4. Create an admin user (optional)
 
 ```bash
 docker exec -it news-app python manage.py createsuperuser
 ```
+
+## Using the app
+
+1. Click **Register** and create an **Editor** account and a **Journalist**
+   account.
+2. Register a **Publisher** account and fill in the publication name.
+3. On **My publication**, tick the editor and the journalist, and click
+   **Save**.
+4. Log in as the journalist and write an article for the publisher.
+5. Log in as the editor, open **Review articles** and approve it.
+6. Log in as the journalist again and write an article with no publisher.
+   It is published immediately.
+
+Journalists can only write articles for publishers they belong to. An
+editor who has not been added to a publisher sees a message saying a
+publisher needs to add them.
 
 ## Running the tests
 
@@ -235,17 +247,17 @@ curl -H "Authorization: Token YOUR_TOKEN" http://127.0.0.1:8000/api/articles/sub
 | Method | Endpoint | Who |
 |--------|----------|-----|
 | POST | `/api/token/` | Anyone with a valid login |
-| GET | `/api/articles/` | Logged-in users |
+| GET | `/api/articles/` | Logged-in users (editors get their publishers' articles only) |
 | GET | `/api/articles/subscribed/` | Readers |
-| GET | `/api/articles/<id>/` | Logged-in users |
+| GET | `/api/articles/<id>/` | Logged-in users (editors: their publishers' articles only) |
 | POST | `/api/articles/` | Journalists |
-| PUT | `/api/articles/<id>/` | Editors, or the article's journalist. Only editors can send `"approved": true`. |
-| DELETE | `/api/articles/<id>/` | Editors, or the article's journalist |
-| POST | `/api/approved/` | Editors (used by the app after approval) |
-| GET | `/api/newsletters/`, `/api/newsletters/<id>/` | Logged-in users |
+| PUT | `/api/articles/<id>/` | The publisher's editors, or the article's journalist. Only editors can send `"approved": true`. |
+| DELETE | `/api/articles/<id>/` | The publisher's editors, or the article's journalist |
+| POST | `/api/approved/` | Editors and journalists (used by the app when an article is published) |
+| GET | `/api/newsletters/`, `/api/newsletters/<id>/` | Logged-in users (editors: their publishers' journalists' newsletters only) |
 
 Example body for `POST /api/articles/` (leave out `publisher` for an
-independent article):
+independent article, which is published immediately):
 
 ```json
 {"title": "City council approves new fuel levy", "content": "The council voted...", "publisher": 1}
@@ -261,6 +273,7 @@ news-app-consolidated/
 │   ├── views.py        # Website pages
 │   ├── api_views.py    # API endpoints
 │   ├── serializers.py  # API serializers
+│   ├── access.py       # Who can see and manage which articles and newsletters
 │   ├── utils.py        # Approval: email subscribers, post to /api/approved/
 │   ├── forms.py
 │   ├── tests.py        # Automated unit tests
