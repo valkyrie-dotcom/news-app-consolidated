@@ -2,6 +2,9 @@
 {% block title %}Newsletters{% endblock title %}
 {% block content %}
     <h1>Newsletters</h1>
+    {% if notice %}
+        <p class="alert alert-error">{{ notice }}</p>
+    {% endif %}
     {% for newsletter in newsletters %}
         <div class="card">
             <h2><a href="{% url 'news:newsletter_detail' newsletter.pk %}">{{ newsletter.title }}</a></h2>

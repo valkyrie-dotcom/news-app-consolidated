@@ -10,7 +10,7 @@
     </p>
     <p>{{ article.content|linebreaksbr }}</p>
 
-    {% if user.role == "editor" or article.author == user %}
+    {% if can_manage %}
         {% if perms.news.change_article %}<a class="btn" href="{% url 'news:article_edit' article.pk %}">✏️ Edit</a>{% endif %}
         {% if perms.news.delete_article %}<a class="btn btn-danger" href="{% url 'news:article_delete' article.pk %}">🗑️ Delete</a>{% endif %}
     {% endif %}

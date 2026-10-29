@@ -74,21 +74,23 @@ def email_subscribers(article):
     return len(recipients)
 
 
-def post_to_approved_api(article, editor):
+def post_to_approved_api(article, user):
     """Send the approved article to our own /api/approved/ endpoint.
 
-    The request uses the editor's API token. If the endpoint cannot be
-    reached, the error is logged and the approval is kept.
+    The request uses the API token of the user who published the article:
+    the editor, or the journalist for an independent article. If the
+    endpoint cannot be reached, the error is logged and the approval is
+    kept.
 
     :param Article article: The approved article
-    :param User editor: The editor who approved it
+    :param User user: The user who approved or published it
     :returns: The response status code, or ``None`` if the request failed
     :rtype: int or None
     """
     # Imported here to avoid a circular import with serializers.py
     from .serializers import ArticleSerializer
 
-    token, created = Token.objects.get_or_create(user=editor)
+    token, created = Token.objects.get_or_create(user=user)
     try:
         response = requests.post(
             settings.APPROVED_API_URL,
@@ -102,18 +104,47 @@ def post_to_approved_api(article, editor):
     return response.status_code
 
 
-def approve_article(article, editor):
+def approve_article(article, user):
     """Approve an article, email its subscribers and log it to the API.
 
-    Both the editor's approve page and the API's PUT call this function.
+    Editors approve their publishers' articles on the approve page or with
+    the API's PUT. Independent articles are approved when the journalist
+    saves them (see :func:`update_article_status`).
 
     :param Article article: The article to approve
-    :param User editor: The editor approving it
+    :param User user: The editor approving it, or the journalist
+        publishing an independent article
     :returns: The number of subscribers emailed
     :rtype: int
     """
     article.approved = True
     article.save()
     sent = email_subscribers(article)
-    post_to_approved_api(article, editor)
+    post_to_approved_api(article, user)
     return sent
+
+
+def update_article_status(article, user, old_publisher_id=None):
+    """Publish an independent article as soon as its journalist saves it.
+
+    An article with no publisher is the journalist's own, so it goes live
+    when it is saved. An article that is moved under a publisher waits for
+    that publisher's editors again.
+
+    :param Article article: The article that was just saved
+    :param User user: The journalist who saved it
+    :param old_publisher_id: The article's publisher before the save, or
+        ``None`` for a new or independent article
+    :type old_publisher_id: int or None
+    :returns: The number of subscribers emailed (0 if nothing was
+        published)
+    :rtype: int
+    """
+    if article.publisher_id is None:
+        if not article.approved:
+            return approve_article(article, user)
+    elif article.publisher_id != old_publisher_id and article.approved:
+        # Moved under a (different) publisher, so its editors must approve
+        article.approved = False
+        article.save()
+    return 0

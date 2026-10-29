@@ -50,4 +50,7 @@ urlpatterns = [
 
     # Readers
     path("subscriptions/", views.subscriptions, name="subscriptions"),
+
+    # Publishers
+    path("my-publication/", views.my_publication, name="my_publication"),
 ]
